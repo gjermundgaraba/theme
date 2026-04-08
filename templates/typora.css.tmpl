@@ -1,0 +1,545 @@
+:root {
+    --bg-color: {{.BG}};
+    --side-bar-bg-color: {{.Surface}};
+    --active-file-bg-color: {{.Overlay}};
+    --text-color: {{.FG}};
+    --md-char-color: {{.FGDim}};
+    --meta-content-color: {{.FGDim}};
+    --primary-color: {{.Blue}};
+    --primary-btn-border-color: {{.Blue}};
+    --primary-btn-text-color: {{.ButtonFG}};
+    --item-hover-bg-color: {{.Surface}};
+    --monospace: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+}
+
+/* ── @property: animatable custom properties ── */
+
+@property --heading-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 135deg;
+}
+
+@property --code-border-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 180deg;
+}
+
+@property --code-glow-opacity {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 0.06;
+}
+
+@property --mark-hue {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@property --strong-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 135deg;
+}
+
+/* ── Entrance animations (play once) ── */
+
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer-in {
+    from { background-position: -200% center; }
+    to   { background-position: 200% center; }
+}
+
+@keyframes underline-grow {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+}
+
+@keyframes check-pop {
+    0%   { transform: scale(1); }
+    20%  { transform: scale(0.85); }
+    50%  { transform: scale(1.25); }
+    70%  { transform: scale(0.95); }
+    85%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes check-glow {
+    from { box-shadow: 0 0 0 0 {{.Magenta}}55; }
+    to   { box-shadow: 0 0 0 10px {{.Magenta}}00; }
+}
+
+@keyframes check-mark-in {
+    0%   { color: transparent; }
+    60%  { color: transparent; }
+    100% { color: {{.ButtonFG}}; }
+}
+
+@keyframes check-ripple {
+    0%   { box-shadow: 0 0 0 0 {{.Orange}}44; }
+    50%  { box-shadow: 0 0 0 6px {{.Orange}}22; }
+    100% { box-shadow: 0 0 0 12px {{.Orange}}00; }
+}
+
+@keyframes uncheck-shrink {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(0.8); }
+    100% { transform: scale(1); }
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    line-height: 1.6;
+}
+
+#write {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 30px 30px 100px;
+    animation: fade-in 0.6s ease both;
+}
+
+/* ── Headings: gradient text with hover-responsive angle ── */
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    --heading-angle: 135deg;
+    background: linear-gradient(var(--heading-angle), {{.Orange}}, {{.Magenta}}, {{.Blue}});
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer-in 1.2s ease both;
+    transition: --heading-angle 0.6s ease-out, transform 0.5s ease-out;
+}
+
+h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+    --heading-angle: 225deg;
+    transform: translateX(4px);
+    transition: --heading-angle 1s cubic-bezier(0.34, 1.56, 0.64, 1),
+                transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+h1 {
+    font-size: 2.2rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid transparent;
+    border-image: linear-gradient(90deg, {{.Orange}}, {{.Magenta}}, {{.Blue}}, transparent) 1;
+    position: relative;
+}
+
+h1::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, {{.Orange}}, {{.Magenta}}, {{.Blue}}, transparent);
+    transform-origin: left;
+    animation: underline-grow 0.8s ease both;
+}
+
+h2 {
+    font-size: 1.6rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(90deg, {{.Magenta}}, {{.Orange}}, transparent) 1;
+}
+
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.05rem; }
+h5 { font-size: 0.9rem; }
+h6 {
+    font-size: 0.85rem;
+    background: none;
+    -webkit-text-fill-color: {{.FGDim}};
+    color: {{.FGDim}};
+}
+
+/* ── Links: growing underline + color shift ── */
+
+a {
+    color: {{.Blue}};
+    text-decoration: none;
+    background-image: linear-gradient({{.Magenta}}, {{.Magenta}});
+    background-size: 0% 2px;
+    background-position: left bottom;
+    background-repeat: no-repeat;
+    transition: background-size 0.4s ease-out, color 0.4s ease-out;
+    padding-bottom: 1px;
+}
+
+a:hover {
+    color: {{.Magenta}};
+    background-size: 100% 2px;
+    transition: background-size 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+                color 0.5s ease;
+}
+
+/* ── Inline markup with personality ── */
+
+strong {
+    font-weight: 700;
+    --strong-angle: 135deg;
+    background: linear-gradient(var(--strong-angle), {{.Orange}}, {{.Magenta}});
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: --strong-angle 0.4s ease-out;
+}
+
+strong:hover {
+    --strong-angle: 315deg;
+    transition: --strong-angle 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+em {
+    color: {{.Magenta}};
+    font-style: italic;
+}
+
+mark {
+    --mark-hue: 0deg;
+    background: linear-gradient(
+        135deg,
+        hsl(calc(48 + var(--mark-hue)) 95% 70% / 0.8),
+        hsl(calc(30 + var(--mark-hue)) 95% 60% / 0.53)
+    );
+    color: {{.Black}};
+    padding: 2px 6px;
+    border-radius: 3px;
+    box-shadow: 0 0 6px {{.Yellow}}30;
+    transition: --mark-hue 0.5s ease-out, box-shadow 0.4s ease-out;
+}
+
+mark:hover {
+    --mark-hue: 20deg;
+    box-shadow: 0 0 14px {{.Yellow}}55;
+    transition: --mark-hue 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+del {
+    color: {{.FGDim}};
+    text-decoration-color: {{.Red}}88;
+}
+
+/* ── Inline code: glowing pill with responsive glow ── */
+
+code {
+    font-family: var(--monospace);
+    font-size: 0.9rem;
+    background: {{.Surface}};
+    color: {{.Orange}};
+    padding: 2px 8px;
+    border-radius: 12px;
+    --code-glow-opacity: 0.06;
+    border: 1px solid rgb(from {{.Orange}} r g b / var(--code-glow-opacity));
+    box-shadow: 0 0 6px rgb(from {{.Orange}} r g b / var(--code-glow-opacity)),
+                0 0 12px rgb(from {{.Orange}} r g b / calc(var(--code-glow-opacity) * 0.5));
+    transition: --code-glow-opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+code:hover {
+    --code-glow-opacity: 0.25;
+    transform: scale(1.04);
+    transition: --code-glow-opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+                transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Blockquotes: gradient border ── */
+
+blockquote {
+    border-left: 4px solid;
+    border-image: linear-gradient(180deg, {{.Orange}}, {{.Magenta}}, {{.Blue}}) 1;
+    padding: 0.75rem 1.25rem;
+    color: {{.FG}};
+    background: {{.Surface}}bb;
+    margin: 1.25rem 0;
+    border-radius: 0 6px 6px 0;
+    transition: transform 0.4s ease-out, box-shadow 0.4s ease-out;
+}
+
+blockquote:hover {
+    transform: translateX(4px);
+    box-shadow: -4px 0 12px {{.Magenta}}15;
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Horizontal rules: gradient with entrance shimmer ── */
+
+hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, {{.Orange}}, {{.Magenta}}, {{.Blue}}, transparent);
+    background-size: 200% auto;
+    animation: shimmer-in 1s ease both;
+    margin: 2.5rem 0;
+    border-radius: 1px;
+}
+
+/* ── Code blocks: glow border with rotating gradient on hover ── */
+
+pre.md-fences {
+    background: {{.Surface}};
+    border-radius: 8px;
+    padding: 1.25rem;
+    font-family: var(--monospace);
+    font-size: 0.9rem;
+    color: {{.FG}};
+    overflow-x: auto;
+    --code-border-angle: 180deg;
+    --code-glow-opacity: 0.06;
+    border: 1px solid {{.Orange}}22;
+    border-left: 3px solid;
+    border-image: linear-gradient(var(--code-border-angle), {{.Orange}}, {{.Magenta}}) 1;
+    box-shadow: 0 0 15px rgb(from {{.Orange}} r g b / var(--code-glow-opacity)),
+                0 0 30px rgb(from {{.Magenta}} r g b / calc(var(--code-glow-opacity) * 0.5));
+    transition: --code-border-angle 0.7s ease-out,
+                --code-glow-opacity 0.4s ease-out,
+                transform 0.4s ease-out;
+}
+
+pre.md-fences:hover {
+    --code-border-angle: 0deg;
+    --code-glow-opacity: 0.12;
+    transform: translateY(-2px);
+    transition: --code-border-angle 1.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                --code-glow-opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+                transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Syntax highlighting (CodeMirror) ── */
+
+.cm-s-inner {
+    background: {{.Surface}};
+    color: {{.FG}};
+}
+
+.cm-s-inner .cm-keyword { color: {{.Magenta}}; font-weight: 600; }
+.cm-s-inner .cm-atom { color: {{.Blue}}; }
+.cm-s-inner .cm-number { color: {{.Orange}}; }
+.cm-s-inner .cm-def { color: {{.Green}}; }
+.cm-s-inner .cm-variable { color: {{.FG}}; }
+.cm-s-inner .cm-variable-2 { color: {{.Cyan}}; }
+.cm-s-inner .cm-type { color: {{.Cyan}}; font-style: italic; }
+.cm-s-inner .cm-property { color: {{.Green}}; }
+.cm-s-inner .cm-operator { color: {{.Magenta}}; }
+.cm-s-inner .cm-string { color: {{.Yellow}}; }
+.cm-s-inner .cm-string-2 { color: {{.Yellow}}; }
+.cm-s-inner .cm-comment { color: {{.FGDim}}; font-style: italic; }
+.cm-s-inner .cm-tag { color: {{.BrightRed}}; }
+.cm-s-inner .cm-attribute { color: {{.Green}}; }
+.cm-s-inner .cm-bracket { color: {{.FG}}; }
+.cm-s-inner .cm-builtin { color: {{.Cyan}}; }
+
+/* ── Checkboxes: custom styled with check animation ── */
+
+.md-task-list-item > input {
+    -webkit-appearance: none;
+    margin-left: -1.3em;
+    margin-top: 0.3rem;
+    top: auto;
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+.md-task-list-item > input:before {
+    content: "";
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: middle;
+    text-align: center;
+    border: 2px solid {{.Overlay}};
+    border-radius: 4px;
+    background: transparent;
+    margin-top: -0.4rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: transparent;
+    font-weight: 700;
+    transition: border-color 0.4s ease, background 0.4s ease,
+                box-shadow 0.4s ease, color 0.3s ease, transform 0.35s ease;
+}
+
+.md-task-list-item > input:hover:before {
+    border-color: {{.Magenta}};
+    box-shadow: 0 0 8px {{.Magenta}}33, 0 0 16px {{.Orange}}15;
+    transform: scale(1.15);
+    transition: border-color 0.5s ease, background 0.5s ease,
+                box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+                color 0.3s ease,
+                transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.md-task-list-item > input:checked:before,
+.md-task-list-item > input[checked]:before {
+    content: '\2713';
+    font-size: 0.625rem;
+    line-height: 0.625rem;
+    background: linear-gradient(135deg, {{.Orange}}, {{.Magenta}});
+    border-color: transparent;
+    animation: check-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+               check-mark-in 0.5s ease both,
+               check-glow 0.6s ease both,
+               check-ripple 0.8s ease 0.1s both;
+}
+
+.md-task-list-item > input:not(:checked):before {
+    animation: uncheck-shrink 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.md-task-list-item > input:checked:hover:before,
+.md-task-list-item > input[checked]:hover:before {
+    box-shadow: 0 0 10px {{.Orange}}44, 0 0 20px {{.Magenta}}22;
+    transform: scale(1.1);
+    transition: box-shadow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+                transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.md-task-list-item > p {
+    display: inline;
+    text-decoration: none;
+    background-image: linear-gradient({{.FGDim}}88, {{.FGDim}}88);
+    background-size: 0% 2px;
+    background-position: left center;
+    background-repeat: no-repeat;
+    transition: background-size 0.4s ease, color 0.4s ease;
+}
+
+.md-task-list-item.task-list-done > p {
+    background-size: 100% 2px;
+    color: {{.FGDim}};
+}
+
+.md-task-list-item.task-list-done > p code {
+    opacity: 0.5;
+}
+
+/* ── Tables: hover accents ── */
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+thead {
+    background: linear-gradient(135deg, {{.Surface}}, {{.Overlay}}44);
+}
+
+th {
+    border: 1px solid {{.Overlay}}66;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: {{.FG}};
+}
+
+td {
+    border: 1px solid {{.Overlay}}44;
+    padding: 8px 14px;
+    text-align: left;
+    transition: background 0.2s ease;
+}
+
+tr {
+    transition: background 0.2s ease;
+}
+
+tr:nth-child(even) {
+    background: {{.Surface}}88;
+}
+
+tr:hover td {
+    background: {{.Orange}}11;
+}
+
+/* ── Selection: warm glow ── */
+
+::selection {
+    background: {{.Magenta}}44;
+    color: {{.SelectionFG}};
+    text-shadow: 0 0 8px {{.Magenta}}33;
+}
+
+/* ── TOC ── */
+
+.md-toc {
+    font-size: 0.9rem;
+}
+
+.md-toc a {
+    color: {{.FGDim}};
+    transition: color 0.2s ease;
+}
+
+.md-toc a:hover {
+    color: {{.Magenta}};
+}
+
+/* ── Sidebar ── */
+
+#typora-sidebar {
+    background: var(--side-bar-bg-color);
+    color: {{.FG}};
+}
+
+.file-list-item {
+    transition: background 0.2s ease;
+}
+
+.file-list-item.active {
+    background: var(--active-file-bg-color);
+}
+
+/* ── Print: strip effects ── */
+
+@media print {
+    html { font-size: 13px; }
+    body { background: white; color: #000; }
+    #write { animation: none; }
+    h1, h2, h3, h4, h5, h6 {
+        background: none;
+        -webkit-text-fill-color: #000;
+        animation: none;
+    }
+    h1::after { display: none; }
+    strong {
+        background: none;
+        -webkit-text-fill-color: #000;
+    }
+    em { color: inherit; }
+    mark { box-shadow: none; background: #ff0; color: #000; }
+    code { background: #eee; color: #000; border: none; box-shadow: none; border-radius: 3px; }
+    hr { animation: none; }
+    pre.md-fences { box-shadow: none; border-image: none; border-left: 3px solid #000; }
+    pre, code { word-wrap: break-word; }
+}
+
+/* ── Reduced motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
