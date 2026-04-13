@@ -51,6 +51,7 @@ func build() {
 		{"templates/ghostty.tmpl", func(n string) string { return filepath.Join("build", "ghostty", n) }},
 		{"templates/fish.tmpl", func(n string) string { return filepath.Join("build", "fish", n+".theme") }},
 		{"templates/vscode/theme.json.tmpl", func(n string) string { return filepath.Join("build", "vscode", "gg-theme", "themes", n+".json") }},
+		{"templates/neovim.lua.tmpl", func(n string) string { return filepath.Join("build", "neovim", "colors", n+".lua") }},
 	}
 
 	for _, t := range perTheme {
@@ -149,6 +150,8 @@ func link() {
 		{"build/vscode/gg-theme", filepath.Join(home, ".cursor", "extensions", "gg-theme")},
 		{"build/typora/gg-dark.css", filepath.Join(home, "Library", "Application Support", "abnerworks.Typora", "themes", "gg-dark.css")},
 		{"build/typora/gg-dark", filepath.Join(home, "Library", "Application Support", "abnerworks.Typora", "themes", "gg-dark")},
+		{"build/neovim/colors/gg-dark.lua", filepath.Join(home, ".config", "nvim", "colors", "gg-dark.lua")},
+		{"build/neovim/colors/gg-light.lua", filepath.Join(home, ".config", "nvim", "colors", "gg-light.lua")},
 	}
 
 	if err := linkAll(cwd, links); err != nil {

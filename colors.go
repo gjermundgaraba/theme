@@ -7,6 +7,9 @@ type Palette struct {
 	SelectionBG, SelectionFG string
 	ButtonBG, ButtonFG       string
 	DebugFG                  string
+	DiffAddBG, DiffDeleteBG  string
+	DiffChangeBG, SearchBG   string
+	VisualBG                 string
 
 	Black, Red, Green, Yellow          string
 	Blue, Magenta, Cyan, White         string
@@ -30,6 +33,11 @@ var Dark = Palette{
 	ButtonBG:      "#7260b5",
 	ButtonFG:      "#f8f8f2",
 	DebugFG:       "#21222c",
+	DiffAddBG:     "#2a3a2e",
+	DiffDeleteBG:  "#3a2a2c",
+	DiffChangeBG:  "#2a2d3a",
+	SearchBG:      "#3a3520",
+	VisualBG:      "#44475a",
 	Black:         "#21222c",
 	Red:           "#ff5555",
 	Green:         "#50fa7b",
@@ -62,6 +70,11 @@ var Light = Palette{
 	ButtonBG:      "#6e25d4",
 	ButtonFG:      "#ffffff",
 	DebugFG:       "#ffffff",
+	DiffAddBG:     "#c4dcc8",
+	DiffDeleteBG:  "#dcc4c6",
+	DiffChangeBG:  "#c4c8dc",
+	SearchBG:      "#dcd8b8",
+	VisualBG:      "#aeb2cb",
 	Black:         "#21222c",
 	Red:           "#b10000",
 	Green:         "#006519",
