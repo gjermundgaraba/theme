@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -50,7 +51,6 @@ func build() {
 		{"templates/ghostty.tmpl", func(n string) string { return filepath.Join("build", "ghostty", n) }},
 		{"templates/fish.tmpl", func(n string) string { return filepath.Join("build", "fish", n+".theme") }},
 		{"templates/vscode/theme.json.tmpl", func(n string) string { return filepath.Join("build", "vscode", "gg-theme", "themes", n+".json") }},
-		{"templates/typora.css.tmpl", func(n string) string { return filepath.Join("build", "typora", n+".css") }},
 	}
 
 	for _, t := range perTheme {
@@ -62,6 +62,23 @@ func build() {
 
 	tmpl := template.Must(template.New("package.json.tmpl").Funcs(funcMap).ParseFiles("templates/vscode/package.json.tmpl"))
 	render(tmpl, filepath.Join("build", "vscode", "gg-theme", "package.json"), nil)
+
+	// Typora folder-based theme (dark only for now)
+	typoraDark := themes[0]
+	typoraTemplates := []struct {
+		tmpl string
+		out  string
+	}{
+		{"templates/typora/theme.css.tmpl", filepath.Join("build", "typora", typoraDark.Name+".css")},
+		{"templates/typora/codeblock.dark.css.tmpl", filepath.Join("build", "typora", typoraDark.Name, "codeblock.dark.css")},
+		{"templates/typora/mermaid.dark.css.tmpl", filepath.Join("build", "typora", typoraDark.Name, "mermaid.dark.css")},
+		{"templates/typora/sourcemode.dark.css.tmpl", filepath.Join("build", "typora", typoraDark.Name, "sourcemode.dark.css")},
+	}
+	for _, t := range typoraTemplates {
+		tmpl := template.Must(template.New(filepath.Base(t.tmpl)).Funcs(funcMap).ParseFiles(t.tmpl))
+		render(tmpl, t.out, typoraDark)
+	}
+	copyDir("templates/typora/assets", filepath.Join("build", "typora", typoraDark.Name))
 }
 
 func render(tmpl *template.Template, path string, data any) {
@@ -77,6 +94,40 @@ func render(tmpl *template.Template, path string, data any) {
 		log.Fatal(err)
 	}
 	fmt.Printf("  \033[32m✓\033[0m %s\n", path)
+}
+
+func copyDir(src, dst string) {
+	if err := os.MkdirAll(dst, 0o755); err != nil {
+		log.Fatal(err)
+	}
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		srcPath := filepath.Join(src, e.Name())
+		dstPath := filepath.Join(dst, e.Name())
+		in, err := os.Open(srcPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		out, err := os.Create(dstPath)
+		if err != nil {
+			in.Close()
+			log.Fatal(err)
+		}
+		if _, err := io.Copy(out, in); err != nil {
+			in.Close()
+			out.Close()
+			log.Fatal(err)
+		}
+		in.Close()
+		out.Close()
+		fmt.Printf("  \033[32m✓\033[0m %s\n", dstPath)
+	}
 }
 
 func link() {
@@ -97,7 +148,7 @@ func link() {
 		{"build/vscode/gg-theme", filepath.Join(home, ".vscode", "extensions", "gg-theme")},
 		{"build/vscode/gg-theme", filepath.Join(home, ".cursor", "extensions", "gg-theme")},
 		{"build/typora/gg-dark.css", filepath.Join(home, "Library", "Application Support", "abnerworks.Typora", "themes", "gg-dark.css")},
-		{"build/typora/gg-light.css", filepath.Join(home, "Library", "Application Support", "abnerworks.Typora", "themes", "gg-light.css")},
+		{"build/typora/gg-dark", filepath.Join(home, "Library", "Application Support", "abnerworks.Typora", "themes", "gg-dark")},
 	}
 
 	if err := linkAll(cwd, links); err != nil {
