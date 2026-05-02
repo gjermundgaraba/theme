@@ -35,6 +35,8 @@ func main() {
 		build()
 	case "link":
 		link()
+	case "serve":
+		serve()
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command: %s\n", os.Args[1])
 		os.Exit(1)

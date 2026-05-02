@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theme Generator</title>
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg: #05070d; --surface: #11131c; --overlay: #3d4250;
+  --fg: #dddee1; --fg-dim: #777a84; --accent: #5fa7ff;
+  --red: #f47a7d; --green: #53be70; --yellow: #c99f00;
+  --blue: #5fa7ff; --magenta: #d381d8; --cyan: #00c1b9; --orange: #f0834e;
+  --radius: 8px;
+}
+html, body { height:100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+body { display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: 260px 1fr; }
+
+header { grid-column: 1/-1; display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--overlay); }
+header h1 { font-size:15px; font-weight:600; letter-spacing:-0.3px; }
+header h1 span { color:var(--accent); }
+.header-actions { display:flex; gap:8px; align-items:center; }
+
+.mode-toggle { display:flex; background:var(--bg); border-radius:6px; overflow:hidden; border:1px solid var(--overlay); }
+.mode-toggle button { padding:5px 14px; font-size:12px; font-weight:500; background:none; color:var(--fg-dim); border:none; cursor:pointer; }
+.mode-toggle button.active { background:var(--accent); color:#fff; }
+
+.build-btn { padding:5px 16px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer; transition:all .15s; }
+.build-btn:hover { background:var(--accent); color:#fff; }
+.build-btn:disabled { opacity:.5; cursor:default; }
+.build-btn.built { border-color:var(--green); color:var(--green); }
+
+aside.controls { padding:16px; overflow-y:auto; border-right:1px solid var(--overlay); }
+.control-group { margin-bottom:20px; }
+.control-group label { display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--fg-dim); margin-bottom:8px; }
+.control-group .value { float:right; color:var(--accent); font-family:'SF Mono',Menlo,monospace; }
+
+.hue-slider { -webkit-appearance:none; width:100%; height:24px; border-radius:12px; outline:none; cursor:pointer; background:linear-gradient(to right,hsl(0,80%,60%),hsl(60,80%,55%),hsl(120,70%,50%),hsl(180,80%,50%),hsl(240,70%,60%),hsl(300,70%,60%),hsl(360,80%,60%)); }
+.hue-slider::-webkit-slider-thumb { -webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:#fff; border:3px solid var(--bg); box-shadow:0 0 0 1px var(--overlay), 0 2px 6px rgba(0,0,0,.4); }
+.hue-slider::-moz-range-thumb { width:18px; height:18px; border-radius:50%; background:#fff; border:3px solid var(--bg); box-shadow:0 0 0 1px var(--overlay), 0 2px 6px rgba(0,0,0,.4); }
+
+.presets { display:flex; flex-wrap:wrap; gap:6px; }
+.preset-btn { padding:4px 10px; font-size:11px; font-weight:500; border-radius:4px; border:1px solid var(--overlay); background:var(--bg); color:var(--fg); cursor:pointer; transition:all .15s; }
+.preset-btn:hover { border-color:var(--accent); }
+.preset-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+.contrast-list { font-size:12px; }
+.contrast-item { display:flex; align-items:center; justify-content:space-between; padding:3px 0; }
+.contrast-item .label { color:var(--fg-dim); }
+.contrast-item .ratio { font-family:'SF Mono',Menlo,monospace; font-size:11px; }
+.contrast-item .ratio.pass { color:var(--green); }
+.contrast-item .ratio.fail { color:var(--red); }
+
+main { padding:20px; overflow-y:auto; }
+.palette-section { margin-bottom:24px; }
+.palette-section h3 { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--fg-dim); margin-bottom:8px; }
+.swatch-row { display:flex; gap:6px; flex-wrap:wrap; }
+.swatch { width:60px; border-radius:var(--radius); overflow:hidden; border:1px solid var(--overlay); cursor:default; transition:transform .1s; }
+.swatch:hover { transform:translateY(-2px); }
+.swatch .color { height:36px; }
+.swatch .info { padding:4px 6px; background:var(--surface); }
+.swatch .name { font-size:9px; font-weight:600; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.swatch .hex { font-size:9px; color:var(--fg-dim); font-family:'SF Mono',Menlo,monospace; }
+
+.editor-wrap { border-radius:var(--radius); border:1px solid var(--overlay); overflow:hidden; margin-bottom:24px; }
+.editor-titlebar { display:flex; align-items:center; padding:8px 12px; background:var(--surface); border-bottom:1px solid var(--overlay); font-size:11px; color:var(--fg-dim); gap:8px; }
+.editor-titlebar .dots { display:flex; gap:5px; }
+.editor-titlebar .dot { width:10px; height:10px; border-radius:50%; }
+.editor-titlebar .filename { flex:1; text-align:center; }
+.code-editor { padding:12px 0; background:var(--bg); font-family:'SF Mono',Menlo,Consolas,monospace; font-size:12.5px; line-height:1.65; overflow-x:auto; counter-reset:line; }
+.code-line { display:flex; padding:0 16px 0 0; }
+.code-line::before { counter-increment:line; content:counter(line); display:inline-block; width:40px; text-align:right; padding-right:16px; color:var(--overlay); user-select:none; flex-shrink:0; }
+.tok-kw { color:var(--magenta); }
+.tok-str { color:var(--yellow); }
+.tok-num { color:var(--blue); }
+.tok-type { color:var(--cyan); font-style:italic; }
+.tok-fn { color:var(--green); }
+.tok-param { color:var(--orange); font-style:italic; }
+.tok-comment { color:var(--fg-dim); font-style:italic; }
+.tok-const { color:var(--blue); }
+
+footer.output { grid-column:1/-1; border-top:1px solid var(--overlay); background:var(--surface); }
+.output-tabs { display:flex; border-bottom:1px solid var(--overlay); }
+.output-tab { padding:8px 16px; font-size:12px; font-weight:500; color:var(--fg-dim); border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; }
+.output-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.output-content { position:relative; max-height:200px; overflow:auto; }
+.output-content pre { padding:12px 16px; font-family:'SF Mono',Menlo,Consolas,monospace; font-size:11.5px; line-height:1.5; color:var(--fg); white-space:pre; }
+.copy-btn { position:absolute; top:8px; right:12px; padding:4px 10px; font-size:11px; border-radius:4px; border:1px solid var(--overlay); background:var(--bg); color:var(--fg-dim); cursor:pointer; }
+.copy-btn:hover { border-color:var(--accent); color:var(--fg); }
+</style>
+</head>
+<body>
+<header>
+  <h1><span>gg</span> theme editor</h1>
+  <div class="header-actions">
+    <button class="build-btn" onclick="applyTheme()">Build</button>
+    <div class="mode-toggle">
+      <button id="mode-dark" class="active" onclick="setMode('dark')">Dark</button>
+      <button id="mode-light" onclick="setMode('light')">Light</button>
+    </div>
+  </div>
+</header>
+
+<aside class="controls">
+  <div class="control-group">
+    <label>Surface Hue <span class="value" id="surface-hue-val">270°</span></label>
+    <input type="range" min="0" max="360" value="270" class="hue-slider" id="surface-hue" oninput="onSliderChange()">
+  </div>
+  <div class="control-group">
+    <label>Accent Hue <span class="value" id="accent-hue-val">270°</span></label>
+    <input type="range" min="0" max="360" value="270" class="hue-slider" id="accent-hue" oninput="onSliderChange()">
+  </div>
+  <div class="control-group">
+    <label>Presets</label>
+    <div class="presets" id="presets"></div>
+  </div>
+  <div class="control-group">
+    <label>Contrast</label>
+    <div class="contrast-list" id="contrasts"></div>
+  </div>
+</aside>
+
+<main>
+  <div class="palette-section">
+    <h3>Surface</h3>
+    <div class="swatch-row" id="surface-swatches"></div>
+  </div>
+  <div class="palette-section">
+    <h3>Syntax</h3>
+    <div class="swatch-row" id="syntax-swatches"></div>
+  </div>
+  <div class="palette-section">
+    <h3>Bright</h3>
+    <div class="swatch-row" id="bright-swatches"></div>
+  </div>
+  <div class="palette-section">
+    <h3>UI</h3>
+    <div class="swatch-row" id="ui-swatches"></div>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-titlebar">
+      <div class="dots">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+      </div>
+      <div class="filename">server.go</div>
+    </div>
+    <div class="code-editor" id="code-editor"></div>
+  </div>
+</main>
+
+<footer class="output">
+  <div class="output-tabs" id="output-tabs"></div>
+  <div class="output-content">
+    <button class="copy-btn" onclick="copyOutput()">Copy</button>
+    <pre id="output-text"></pre>
+  </div>
+</footer>
+
+<script>
+const PRESETS = [
+  {name:"Midnight", surface:270, accent:270},
+  {name:"Ocean",    surface:210, accent:210},
+  {name:"Forest",   surface:150, accent:150},
+  {name:"Ember",    surface:30,  accent:30},
+  {name:"Rose",     surface:340, accent:340},
+  {name:"Slate",    surface:240, accent:250},
+  {name:"Lavender", surface:290, accent:280},
+  {name:"Sage",     surface:130, accent:160},
+];
+
+const SURFACE_KEYS = ["BG","Surface","Overlay","FGDim","FG"];
+const SYNTAX_KEYS = ["Red","Orange","Yellow","Green","Cyan","Blue","Magenta"];
+const BRIGHT_KEYS = ["BrightRed","BrightOrange","BrightYellow","BrightGreen","BrightCyan","BrightBlue","BrightMagenta"];
+const UI_KEYS = ["Black","White","Cursor","SelectionBG","ButtonBG"];
+
+const CODE_HTML = [
+  '<span class="tok-comment">// config.go \u2014 Application configuration</span>',
+  '<span class="tok-kw">package</span> config',
+  '',
+  '<span class="tok-kw">import</span> (',
+  '\t<span class="tok-str">"fmt"</span>',
+  '\t<span class="tok-str">"os"</span>',
+  ')',
+  '',
+  '<span class="tok-kw">const</span> (',
+  '\tVersion    = <span class="tok-str">"2.1.0"</span>',
+  '\tMaxRetry   = <span class="tok-num">3</span>',
+  '\tDefaultPort = <span class="tok-num">8080</span>',
+  ')',
+  '',
+  '<span class="tok-kw">type</span> <span class="tok-type">Server</span> <span class="tok-kw">struct</span> {',
+  '\tHost <span class="tok-type">string</span>',
+  '\tPort <span class="tok-type">int</span>',
+  '}',
+  '',
+  '<span class="tok-kw">func</span> <span class="tok-fn">NewServer</span>(<span class="tok-param">host</span> <span class="tok-type">string</span>, <span class="tok-param">port</span> <span class="tok-type">int</span>) *<span class="tok-type">Server</span> {',
+  '\t<span class="tok-kw">if</span> <span class="tok-param">port</span> == <span class="tok-num">0</span> {',
+  '\t\t<span class="tok-param">port</span> = DefaultPort',
+  '\t}',
+  '\t<span class="tok-kw">return</span> &<span class="tok-type">Server</span>{Host: <span class="tok-param">host</span>, Port: <span class="tok-param">port</span>}',
+  '}',
+  '',
+  '<span class="tok-kw">func</span> (<span class="tok-param">s</span> *<span class="tok-type">Server</span>) <span class="tok-fn">Address</span>() <span class="tok-type">string</span> {',
+  '\t<span class="tok-kw">return</span> fmt.<span class="tok-fn">Sprintf</span>(<span class="tok-str">"%s:%d"</span>, <span class="tok-param">s</span>.Host, <span class="tok-param">s</span>.Port)',
+  '}',
+  '',
+  '<span class="tok-kw">func</span> (<span class="tok-param">s</span> *<span class="tok-type">Server</span>) <span class="tok-fn">Listen</span>() <span class="tok-type">error</span> {',
+  '\t<span class="tok-param">addr</span> := <span class="tok-param">s</span>.<span class="tok-fn">Address</span>()',
+  '\tfmt.<span class="tok-fn">Fprintf</span>(os.Stderr, <span class="tok-str">"listening on %s\\n"</span>, <span class="tok-param">addr</span>)',
+  '\t<span class="tok-kw">return</span> <span class="tok-kw">nil</span>',
+  '}',
+].map(l => '<div class="code-line">' + (l || ' ') + '</div>').join('');
+
+let state = { mode: 'dark', surfaceHue: 270, accentHue: 270, data: null, activeTab: 'ghostty' };
+let debounceTimer = null;
+
+function init() {
+  renderPresets();
+  document.getElementById('code-editor').innerHTML = CODE_HTML;
+  fetchPalette();
+}
+
+function renderPresets() {
+  const el = document.getElementById('presets');
+  el.innerHTML = PRESETS.map(p =>
+    '<button class="preset-btn' + (p.surface === state.surfaceHue && p.accent === state.accentHue ? ' active' : '') + '" onclick="applyPreset(' + p.surface + ',' + p.accent + ')">' + p.name + '</button>'
+  ).join('');
+}
+
+function applyPreset(s, a) {
+  state.surfaceHue = s;
+  state.accentHue = a;
+  document.getElementById('surface-hue').value = s;
+  document.getElementById('accent-hue').value = a;
+  document.getElementById('surface-hue-val').textContent = s + '°';
+  document.getElementById('accent-hue-val').textContent = a + '°';
+  renderPresets();
+  fetchPalette();
+}
+
+function setMode(m) {
+  state.mode = m;
+  document.getElementById('mode-dark').classList.toggle('active', m === 'dark');
+  document.getElementById('mode-light').classList.toggle('active', m === 'light');
+  if (state.data) renderPalette(state.data);
+}
+
+function onSliderChange() {
+  state.surfaceHue = parseInt(document.getElementById('surface-hue').value);
+  state.accentHue = parseInt(document.getElementById('accent-hue').value);
+  document.getElementById('surface-hue-val').textContent = state.surfaceHue + '°';
+  document.getElementById('accent-hue-val').textContent = state.accentHue + '°';
+  renderPresets();
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(fetchPalette, 80);
+}
+
+function fetchPalette() {
+  fetch('/api/generate?surfaceHue=' + state.surfaceHue + '&accentHue=' + state.accentHue)
+    .then(r => r.json())
+    .then(data => { state.data = data; renderPalette(data); });
+}
+
+function renderPalette(data) {
+  const p = data[state.mode].colors;
+  const c = data[state.mode].contrasts;
+  const t = data[state.mode].templates;
+
+  document.documentElement.style.setProperty('--bg', p.BG);
+  document.documentElement.style.setProperty('--surface', p.Surface);
+  document.documentElement.style.setProperty('--overlay', p.Overlay);
+  document.documentElement.style.setProperty('--fg', p.FG);
+  document.documentElement.style.setProperty('--fg-dim', p.FGDim);
+  document.documentElement.style.setProperty('--accent', p.Blue);
+  document.documentElement.style.setProperty('--red', p.Red);
+  document.documentElement.style.setProperty('--green', p.Green);
+  document.documentElement.style.setProperty('--yellow', p.Yellow);
+  document.documentElement.style.setProperty('--blue', p.Blue);
+  document.documentElement.style.setProperty('--magenta', p.Magenta);
+  document.documentElement.style.setProperty('--cyan', p.Cyan);
+  document.documentElement.style.setProperty('--orange', p.Orange);
+
+  renderSwatches('surface-swatches', SURFACE_KEYS, p);
+  renderSwatches('syntax-swatches', SYNTAX_KEYS, p);
+  renderSwatches('bright-swatches', BRIGHT_KEYS, p);
+  renderSwatches('ui-swatches', UI_KEYS, p);
+  renderContrasts(c);
+  renderOutput(t);
+}
+
+function renderSwatches(id, keys, colors) {
+  document.getElementById(id).innerHTML = keys.map(k =>
+    '<div class="swatch">' +
+      '<div class="color" style="background:' + colors[k] + '"></div>' +
+      '<div class="info"><div class="name">' + k + '</div><div class="hex">' + colors[k] + '</div></div>' +
+    '</div>'
+  ).join('');
+}
+
+function renderContrasts(contrasts) {
+  document.getElementById('contrasts').innerHTML = contrasts.map(c =>
+    '<div class="contrast-item">' +
+      '<span class="label">' + c.label + '</span>' +
+      '<span class="ratio ' + (c.pass ? 'pass' : 'fail') + '">' + c.ratio + ':1 ' + (c.pass ? '✓' : '✗') + '</span>' +
+    '</div>'
+  ).join('');
+}
+
+function renderOutput(templates) {
+  const tabs = document.getElementById('output-tabs');
+  const names = Object.keys(templates);
+  if (tabs.children.length !== names.length || tabs.dataset.names !== names.join(',')) {
+    tabs.dataset.names = names.join(',');
+    tabs.innerHTML = names.map(n =>
+      '<button class="output-tab' + (n === state.activeTab ? ' active' : '') + '" onclick="setTab(\'' + n + '\')">' + n + '</button>'
+    ).join('');
+  }
+  if (!templates[state.activeTab]) state.activeTab = names[0];
+  document.getElementById('output-text').textContent = templates[state.activeTab] || '';
+  tabs.querySelectorAll('.output-tab').forEach(t => t.classList.toggle('active', t.textContent === state.activeTab));
+}
+
+function setTab(name) {
+  state.activeTab = name;
+  if (state.data) renderOutput(state.data[state.mode].templates);
+}
+
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById('output-text').textContent);
+  const btn = document.querySelector('.copy-btn');
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 1500);
+}
+
+function applyTheme() {
+  const btn = document.querySelector('.build-btn');
+  btn.disabled = true;
+  btn.textContent = 'Building...';
+  fetch('/api/apply?surfaceHue=' + state.surfaceHue + '&accentHue=' + state.accentHue, {method:'POST'})
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false;
+      if (data.error) {
+        btn.textContent = 'Error';
+        alert(data.error);
+      } else {
+        btn.classList.add('built');
+        btn.textContent = 'Built ✓';
+        setTimeout(() => { btn.classList.remove('built'); btn.textContent = 'Build'; }, 2000);
+      }
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.textContent = 'Build';
+      alert('Request failed');
+    });
+}
+
+init();
+</script>
+</body>
+</html>
