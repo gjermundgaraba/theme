@@ -1,4 +1,4 @@
-package main
+package themes
 
 import (
 	"os"
@@ -21,7 +21,7 @@ func TestLinkAllFailsBeforeCreatingLinksWhenAnySourceIsMissing(t *testing.T) {
 	firstDst := filepath.Join(dstRoot, "ghostty", "gg-dark")
 	secondDst := filepath.Join(dstRoot, "ghostty", "gg-light")
 
-	err := linkAll(cwd, [][2]string{
+	err := LinkAll(cwd, [][2]string{
 		{"build/ghostty/gg-dark", firstDst},
 		{"build/ghostty/gg-light", secondDst},
 	})
@@ -33,6 +33,26 @@ func TestLinkAllFailsBeforeCreatingLinksWhenAnySourceIsMissing(t *testing.T) {
 	}
 	if _, err := os.Lstat(firstDst); !os.IsNotExist(err) {
 		t.Fatalf("expected no link to be created, got %v", err)
+	}
+}
+
+func TestLinkAllDryRunValidatesSourcesWithoutMutatingDestinations(t *testing.T) {
+	cwd := t.TempDir()
+	src := filepath.Join(cwd, "build", "typora", "gg-light.css")
+	if err := os.MkdirAll(filepath.Dir(src), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(src, []byte("theme"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	dstRoot := t.TempDir()
+	dst := filepath.Join(dstRoot, "themes", "gg-light.css")
+	if err := LinkAllWithOptions(cwd, [][2]string{{"build/typora/gg-light.css", dst}}, LinkOptions{DryRun: true}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Lstat(dst); !os.IsNotExist(err) {
+		t.Fatalf("expected dry-run to avoid creating destination, got %v", err)
 	}
 }
 
@@ -55,7 +75,7 @@ func TestLinkAllReplacesExistingDirectoryWithSymlink(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := linkAll(cwd, [][2]string{{"build/vscode/gg-theme", dst}}); err != nil {
+	if err := LinkAll(cwd, [][2]string{{"build/vscode/gg-theme", dst}}); err != nil {
 		t.Fatal(err)
 	}
 

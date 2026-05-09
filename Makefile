@@ -1,8 +1,10 @@
-.PHONY: build link
-
-build:
-	go run . build
+.PHONY: link serve test
 
 link:
-	go run . link
+	go run ./cli link
 
+serve:
+	go run ./cli serve
+
+test:
+	go test ./...

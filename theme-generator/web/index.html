@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theme Generator</title>
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg: {{.Palette.BG}};
+  --surface: {{.Palette.Surface}};
+  --overlay: {{.Palette.Overlay}};
+  --fg: {{.Palette.FG}};
+  --fg-dim: {{.Palette.FGDim}};
+  --accent: {{.Palette.Accent}};
+  --accent-bg: {{.Palette.ButtonBG}};
+  --accent-fg: {{.Palette.ButtonFG}};
+  --red: {{.Palette.Red}};
+  --green: {{.Palette.Green}};
+  --yellow: {{.Palette.Yellow}};
+  --blue: {{.Palette.Blue}};
+  --magenta: {{.Palette.Magenta}};
+  --cyan: {{.Palette.Cyan}};
+  --orange: {{.Palette.Orange}};
+  --radius: 8px;
+}
+html, body { min-height:100%; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background:var(--bg); color:var(--fg); }
+body { display:grid; min-height:100vh; grid-template-rows:auto 1fr auto; grid-template-columns:260px minmax(0, 1fr); }
+button, input { font:inherit; }
+button:focus-visible, input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+button[aria-pressed="true"] { color:var(--accent); }
+
+header { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--overlay); }
+header h1 { font-size:15px; font-weight:650; letter-spacing:-0.3px; }
+header h1 span { color:var(--accent); }
+.header-actions { display:flex; gap:8px; align-items:center; }
+
+.mode-toggle { display:flex; background:var(--bg); border-radius:6px; overflow:hidden; border:1px solid var(--overlay); }
+.mode-toggle button { min-height:36px; padding:5px 14px; font-size:12px; font-weight:600; background:none; color:var(--fg-dim); border:0; cursor:pointer; transition:background-color .15s ease-out, color .15s ease-out; }
+.mode-toggle button.active { background:var(--accent-bg); color:var(--accent-fg); }
+
+.build-btn { min-height:36px; padding:5px 16px; font-size:12px; font-weight:650; border-radius:6px; border:1px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer; transition:background-color .15s ease-out, color .15s ease-out, border-color .15s ease-out, opacity .15s ease-out; }
+.build-btn:hover { background:var(--accent-bg); color:var(--accent-fg); }
+.build-btn:disabled { opacity:.55; cursor:default; }
+.build-btn.built { border-color:var(--green); color:var(--green); }
+
+aside.controls { min-width:0; padding:16px; overflow-y:auto; border-right:1px solid var(--overlay); }
+.control-group { margin-bottom:20px; }
+.control-group label, .control-heading { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.55px; color:var(--fg-dim); margin-bottom:8px; }
+.control-group .value { float:right; color:var(--accent); font-family:'SF Mono', Menlo, monospace; }
+
+.hue-slider { appearance:none; width:100%; min-height:32px; border-radius:16px; outline:none; cursor:pointer; background:linear-gradient(to right,hsl(0,80%,60%),hsl(60,80%,55%),hsl(120,70%,50%),hsl(180,80%,50%),hsl(240,70%,60%),hsl(300,70%,60%),hsl(360,80%,60%)); }
+.hue-slider::-webkit-slider-thumb { appearance:none; width:24px; height:24px; border-radius:50%; background:var(--accent-fg); border:3px solid var(--bg); box-shadow:0 0 0 1px var(--overlay), 0 2px 6px color-mix(in oklch, var(--bg) 70%, transparent); }
+.hue-slider::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:var(--accent-fg); border:3px solid var(--bg); box-shadow:0 0 0 1px var(--overlay), 0 2px 6px color-mix(in oklch, var(--bg) 70%, transparent); }
+.lightness-slider { appearance:none; width:100%; min-height:32px; border-radius:16px; outline:none; cursor:pointer; background:linear-gradient(to right, oklch(0.10 0.02 var(--surface-hue, 143)), oklch(0.50 0.02 var(--surface-hue, 143)), oklch(0.95 0.01 var(--surface-hue, 143))); }
+.lightness-slider::-webkit-slider-thumb { appearance:none; width:24px; height:24px; border-radius:50%; background:var(--accent-fg); border:3px solid var(--bg); box-shadow:0 0 0 1px var(--overlay), 0 2px 6px color-mix(in oklch, var(--bg) 70%, transparent); }
+.lightness-slider::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:var(--accent-fg); border:3px solid var(--bg); box-shadow:0 0 0 1px var(--overlay), 0 2px 6px color-mix(in oklch, var(--bg) 70%, transparent); }
+
+.presets { display:flex; flex-wrap:wrap; gap:6px; }
+.preset-btn { min-height:32px; padding:4px 10px; font-size:11px; font-weight:600; border-radius:4px; border:1px solid var(--overlay); background:var(--bg); color:var(--fg); cursor:pointer; transition:background-color .15s ease-out, color .15s ease-out, border-color .15s ease-out; }
+.preset-btn:hover { border-color:var(--accent); }
+.preset-btn.active { background:var(--accent-bg); color:var(--accent-fg); border-color:var(--accent-bg); }
+
+.contrast-list { font-size:12px; }
+.contrast-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:3px 0; }
+.contrast-item .label { min-width:0; color:var(--fg-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.contrast-item .ratio { flex-shrink:0; font-family:'SF Mono', Menlo, monospace; font-size:11px; }
+.contrast-item .ratio.pass { color:var(--green); }
+.contrast-item .ratio.fail { color:var(--red); }
+.status-line { min-height:18px; font-size:11px; color:var(--fg-dim); }
+.status-line.error { color:var(--red); }
+.status-line.success { color:var(--green); }
+
+main { min-width:0; padding:20px; overflow:auto; }
+.palette-section { margin-bottom:24px; }
+.palette-section h2 { font-size:12px; font-weight:750; text-transform:uppercase; letter-spacing:0.65px; color:var(--fg); margin-bottom:4px; }
+.section-note { max-width:70ch; margin-bottom:10px; color:var(--fg-dim); font-size:12px; line-height:1.45; }
+.swatch-row { display:grid; grid-template-columns:repeat(auto-fill, minmax(72px, 1fr)); gap:8px; }
+.swatch { min-width:0; border-radius:var(--radius); overflow:hidden; border:1px solid var(--overlay); background:var(--surface); color:inherit; text-align:left; cursor:pointer; transition:transform .1s ease-out, border-color .15s ease-out; }
+.swatch:hover { transform:translateY(-2px); border-color:var(--accent); }
+.swatch .color { height:46px; }
+.swatch .info { padding:6px 7px; background:var(--surface); }
+.swatch .name { font-size:10px; font-weight:700; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.swatch .hex { margin-top:2px; font-size:9px; color:var(--fg-dim); font-family:'SF Mono', Menlo, monospace; }
+
+.editor-wrap { border-radius:var(--radius); border:1px solid var(--overlay); overflow:hidden; margin-bottom:24px; }
+.editor-titlebar { display:flex; align-items:center; padding:8px 12px; background:var(--surface); border-bottom:1px solid var(--overlay); font-size:11px; color:var(--fg-dim); gap:8px; }
+.editor-titlebar .dots { display:flex; gap:5px; }
+.editor-titlebar .dot { width:10px; height:10px; border-radius:50%; }
+.editor-titlebar .dot-red { background:var(--red); }
+.editor-titlebar .dot-yellow { background:var(--yellow); }
+.editor-titlebar .dot-green { background:var(--green); }
+.editor-titlebar .filename { flex:1; text-align:center; }
+.code-editor { padding:12px 0; background:var(--bg); font-family:'SF Mono', Menlo, Consolas, monospace; font-size:12.5px; line-height:1.65; overflow-x:auto; counter-reset:line; }
+.code-line { display:flex; padding:0 16px 0 0; }
+.code-line::before { counter-increment:line; content:counter(line); display:inline-block; width:40px; text-align:right; padding-right:16px; color:var(--overlay); user-select:none; flex-shrink:0; }
+.tok-kw { color:var(--magenta); }
+.tok-str { color:var(--yellow); }
+.tok-num { color:var(--blue); }
+.tok-type { color:var(--cyan); font-style:italic; }
+.tok-fn { color:var(--green); }
+.tok-param { color:var(--orange); font-style:italic; }
+.tok-comment { color:var(--fg-dim); font-style:italic; }
+
+footer.output { grid-column:1/-1; border-top:1px solid var(--overlay); background:var(--surface); }
+.output-tabs { display:flex; overflow-x:auto; border-bottom:1px solid var(--overlay); }
+.output-tab { min-height:44px; padding:8px 16px; font-size:12px; font-weight:600; color:var(--fg-dim); border:0; background:none; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; }
+.output-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.output-content { position:relative; max-height:220px; overflow:auto; }
+.output-content pre { min-width:max-content; padding:48px 16px 12px; font-family:'SF Mono', Menlo, Consolas, monospace; font-size:11.5px; line-height:1.5; color:var(--fg); white-space:pre; }
+.output-content.wrap pre { min-width:0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.output-actions { position:absolute; top:8px; right:12px; z-index:1; display:flex; gap:6px; }
+.copy-btn, .wrap-btn { min-height:32px; padding:4px 10px; font-size:11px; border-radius:4px; border:1px solid var(--overlay); background:var(--bg); color:var(--fg-dim); cursor:pointer; transition:color .15s ease-out, border-color .15s ease-out, background-color .15s ease-out; }
+.copy-btn:hover, .wrap-btn:hover { border-color:var(--accent); color:var(--fg); }
+.wrap-btn[aria-pressed="true"] { border-color:var(--accent-bg); background:var(--accent-bg); color:var(--accent-fg); }
+
+@media (max-width: 760px) {
+  body { min-height:100%; grid-template-columns:1fr; grid-template-rows:auto auto auto auto; }
+  header { position:sticky; top:0; z-index:2; padding:10px 12px; flex-wrap:wrap; }
+  .header-actions { width:100%; justify-content:space-between; }
+  aside.controls { border-right:0; border-bottom:1px solid var(--overlay); padding:12px; overflow:visible; }
+  .preset-btn, .mode-toggle button, .build-btn, .copy-btn, .wrap-btn, .hue-slider { min-height:44px; }
+  main { padding:12px; }
+  .swatch-row { grid-template-columns:repeat(auto-fill, minmax(min(88px, 100%), 1fr)); }
+  .output-content { max-height:38vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:0.01ms !important; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><span>gg</span> theme editor</h1>
+  <div class="header-actions">
+    <button type="button" class="build-btn" id="build-btn">Build</button>
+    <div class="mode-toggle" aria-label="Theme preview mode">
+      <button type="button" id="mode-dark" class="active" aria-pressed="true">Dark</button>
+      <button type="button" id="mode-light" aria-pressed="false">Light</button>
+    </div>
+  </div>
+</header>
+
+<aside class="controls">
+  <div class="control-group">
+    <label for="surface-hue">Surface Hue <span class="value" id="surface-hue-val">{{.SurfaceHue}}°</span></label>
+    <input type="range" min="0" max="360" value="{{.SurfaceHue}}" class="hue-slider" id="surface-hue">
+  </div>
+  <div class="control-group">
+    <label for="accent-hue">Accent Hue <span class="value" id="accent-hue-val">{{.AccentHue}}°</span></label>
+    <input type="range" min="0" max="360" value="{{.AccentHue}}" class="hue-slider" id="accent-hue">
+  </div>
+  <div class="control-group">
+    <label for="dark-lightness">Dark BG Lightness <span class="value" id="dark-lightness-val">{{.DarkSurfaceLightnessPct}}%</span></label>
+    <input type="range" min="{{.MinDarkSurfaceLightnessPct}}" max="{{.MaxDarkSurfaceLightnessPct}}" value="{{.DarkSurfaceLightnessPct}}" class="lightness-slider" id="dark-lightness">
+  </div>
+  <div class="control-group">
+    <label for="light-lightness">Light BG Lightness <span class="value" id="light-lightness-val">{{.LightSurfaceLightnessPct}}%</span></label>
+    <input type="range" min="{{.MinLightSurfaceLightnessPct}}" max="{{.MaxLightSurfaceLightnessPct}}" value="{{.LightSurfaceLightnessPct}}" class="lightness-slider" id="light-lightness">
+  </div>
+  <div class="control-group">
+    <div class="control-heading" id="presets-heading">Presets</div>
+    <div class="presets" id="presets" aria-labelledby="presets-heading"></div>
+  </div>
+  <div class="control-group">
+    <div class="control-heading" id="contrast-heading">Contrast</div>
+    <div class="contrast-list" id="contrasts" role="list" aria-labelledby="contrast-heading"></div>
+  </div>
+  <div id="status-line" class="status-line" role="status" aria-live="polite"></div>
+</aside>
+
+<main>
+  <div id="palette-groups"></div>
+
+  <div class="editor-wrap">
+    <div class="editor-titlebar">
+      <div class="dots" aria-hidden="true">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <div class="filename">server.go</div>
+    </div>
+    <div class="code-editor" id="code-editor" aria-label="Code color preview"></div>
+  </div>
+</main>
+
+<footer class="output">
+  <div class="output-tabs" id="output-tabs" aria-label="Generated output"></div>
+  <div class="output-content" id="output-content">
+    <div class="output-actions">
+      <button type="button" class="wrap-btn" id="wrap-output" aria-pressed="false">Wrap</button>
+      <button type="button" class="copy-btn" id="copy-output">Copy</button>
+    </div>
+    <pre id="output-text"></pre>
+  </div>
+</footer>
+
+<script>
+const PRESETS = [
+  {name:"Midnight", surface:270, accent:270},
+  {name:"Ocean", surface:210, accent:210},
+  {name:"Forest", surface:150, accent:150},
+  {name:"Ember", surface:30, accent:30},
+  {name:"Rose", surface:340, accent:340},
+  {name:"Slate", surface:240, accent:250},
+  {name:"Lavender", surface:290, accent:280},
+  {name:"Sage", surface:130, accent:160},
+];
+
+const PALETTE_GROUPS = [
+  {name:"Surface", note:"Base layers and terminal anchors.", keys:["BG","Surface","Overlay","Black","White"]},
+  {name:"Text", note:"Foregrounds, dim text, and cursor colors.", keys:["FG","FGDim","Cursor","CursorText"]},
+  {name:"Interaction", note:"Selection, action, visual, and search states.", keys:["SelectionBG","SelectionFG","Accent","ButtonBG","ButtonFG","VisualBG","SearchBG"]},
+  {name:"Syntax", note:"Shared editor and terminal syntax colors.", keys:["Red","Orange","Yellow","Green","Cyan","Blue","Magenta"]},
+  {name:"Bright ANSI", note:"Higher-energy terminal variants.", keys:["BrightBlack","BrightRed","BrightYellow","BrightGreen","BrightCyan","BrightBlue","BrightMagenta","BrightWhite"]},
+  {name:"Diagnostics", note:"Diff and debug surfaces.", keys:["DiffAddBG","DiffDeleteBG","DiffChangeBG","DebugFG"]},
+];
+
+const CODE_LINES = [
+  [{className:"tok-comment", text:"// config.go: Application configuration"}],
+  [{className:"tok-kw", text:"package"}, {text:" config"}],
+  [],
+  [{className:"tok-kw", text:"import"}, {text:" ("}],
+  [{text:"\t"}, {className:"tok-str", text:"\"fmt\""}],
+  [{text:"\t"}, {className:"tok-str", text:"\"os\""}],
+  [{text:")"}],
+  [],
+  [{className:"tok-kw", text:"const"}, {text:" ("}],
+  [{text:"\tVersion = "}, {className:"tok-str", text:"\"2.1.0\""}],
+  [{text:"\tMaxRetry = "}, {className:"tok-num", text:"3"}],
+  [{text:"\tDefaultPort = "}, {className:"tok-num", text:"8080"}],
+  [{text:")"}],
+  [],
+  [{className:"tok-kw", text:"type"}, {text:" "}, {className:"tok-type", text:"Server"}, {text:" "}, {className:"tok-kw", text:"struct"}, {text:" {"}],
+  [{text:"\tHost "}, {className:"tok-type", text:"string"}],
+  [{text:"\tPort "}, {className:"tok-type", text:"int"}],
+  [{text:"}"}],
+  [],
+  [{className:"tok-kw", text:"func"}, {text:" "}, {className:"tok-fn", text:"NewServer"}, {text:"("}, {className:"tok-param", text:"host"}, {text:" "}, {className:"tok-type", text:"string"}, {text:", "}, {className:"tok-param", text:"port"}, {text:" "}, {className:"tok-type", text:"int"}, {text:") *"}, {className:"tok-type", text:"Server"}, {text:" {"}],
+  [{text:"\t"}, {className:"tok-kw", text:"if"}, {text:" "}, {className:"tok-param", text:"port"}, {text:" == "}, {className:"tok-num", text:"0"}, {text:" {"}],
+  [{text:"\t\t"}, {className:"tok-param", text:"port"}, {text:" = DefaultPort"}],
+  [{text:"\t}"}],
+  [{text:"\t"}, {className:"tok-kw", text:"return"}, {text:" &"}, {className:"tok-type", text:"Server"}, {text:"{Host: "}, {className:"tok-param", text:"host"}, {text:", Port: "}, {className:"tok-param", text:"port"}, {text:"}"}],
+  [{text:"}"}],
+];
+
+let state = {
+  mode:"dark",
+  surfaceHue: {{.SurfaceHue}},
+  accentHue: {{.AccentHue}},
+  darkLightness: {{.DarkSurfaceLightnessPct}} / 100,
+  lightLightness: {{.LightSurfaceLightnessPct}} / 100,
+  data:null,
+  activeTab:"ghostty",
+  wrapOutput:false,
+};
+let debounceTimer = null;
+let paletteRequest = 0;
+let paletteController = null;
+
+function init() {
+  bindEvents();
+  renderPresets();
+  renderCodeSample();
+  document.documentElement.style.setProperty('--surface-hue', state.surfaceHue);
+  fetchPalette();
+}
+
+function buildQuery() {
+  return new URLSearchParams({
+    surfaceHue: String(state.surfaceHue),
+    accentHue: String(state.accentHue),
+    darkSurfaceLightness: state.darkLightness.toFixed(2),
+    lightSurfaceLightness: state.lightLightness.toFixed(2),
+  }).toString();
+}
+
+function bindEvents() {
+  document.getElementById('build-btn').addEventListener('click', applyTheme);
+  document.getElementById('copy-output').addEventListener('click', copyOutput);
+  document.getElementById('wrap-output').addEventListener('click', toggleWrapOutput);
+  document.getElementById('mode-dark').addEventListener('click', () => setMode('dark'));
+  document.getElementById('mode-light').addEventListener('click', () => setMode('light'));
+  document.getElementById('surface-hue').addEventListener('input', onSliderChange);
+  document.getElementById('accent-hue').addEventListener('input', onSliderChange);
+  document.getElementById('dark-lightness').addEventListener('input', onSliderChange);
+  document.getElementById('light-lightness').addEventListener('input', onSliderChange);
+  document.getElementById('presets').addEventListener('click', event => {
+    const button = event.target.closest('.preset-btn');
+    if (!button) return;
+    applyPreset(Number(button.dataset.surface), Number(button.dataset.accent));
+  });
+  document.getElementById('palette-groups').addEventListener('click', event => {
+    const button = event.target.closest('.swatch');
+    if (!button) return;
+    copyColor(button.dataset.name, button.dataset.hex);
+  });
+  document.getElementById('output-tabs').addEventListener('click', event => {
+    const button = event.target.closest('.output-tab');
+    if (!button) return;
+    setTab(button.dataset.tab);
+  });
+}
+
+function renderCodeSample() {
+  const nodes = CODE_LINES.map(parts => {
+    const line = document.createElement('div');
+    line.className = 'code-line';
+    if (parts.length === 0) {
+      line.textContent = ' ';
+      return line;
+    }
+    for (const part of parts) {
+      if (part.className) {
+        const span = document.createElement('span');
+        span.className = part.className;
+        span.textContent = part.text;
+        line.append(span);
+      } else {
+        line.append(document.createTextNode(part.text));
+      }
+    }
+    return line;
+  });
+  document.getElementById('code-editor').replaceChildren(...nodes);
+}
+
+function renderPresets() {
+  const nodes = PRESETS.map(p => {
+    const active = p.surface === state.surfaceHue && p.accent === state.accentHue;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'preset-btn' + (active ? ' active' : '');
+    button.dataset.surface = p.surface;
+    button.dataset.accent = p.accent;
+    button.setAttribute('aria-pressed', active);
+    button.textContent = p.name;
+    return button;
+  });
+  document.getElementById('presets').replaceChildren(...nodes);
+}
+
+function applyPreset(surface, accent) {
+  state.surfaceHue = surface;
+  state.accentHue = accent;
+  document.getElementById('surface-hue').value = surface;
+  document.getElementById('accent-hue').value = accent;
+  document.getElementById('surface-hue-val').textContent = surface + '°';
+  document.getElementById('accent-hue-val').textContent = accent + '°';
+  document.documentElement.style.setProperty('--surface-hue', state.surfaceHue);
+  renderPresets();
+  fetchPalette();
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  const dark = document.getElementById('mode-dark');
+  const light = document.getElementById('mode-light');
+  dark.classList.toggle('active', mode === 'dark');
+  light.classList.toggle('active', mode === 'light');
+  dark.setAttribute('aria-pressed', mode === 'dark');
+  light.setAttribute('aria-pressed', mode === 'light');
+  if (state.data) renderPalette(state.data);
+}
+
+function onSliderChange() {
+  state.surfaceHue = Number(document.getElementById('surface-hue').value);
+  state.accentHue = Number(document.getElementById('accent-hue').value);
+  state.darkLightness = Number(document.getElementById('dark-lightness').value) / 100;
+  state.lightLightness = Number(document.getElementById('light-lightness').value) / 100;
+  document.getElementById('surface-hue-val').textContent = state.surfaceHue + '°';
+  document.getElementById('accent-hue-val').textContent = state.accentHue + '°';
+  document.getElementById('dark-lightness-val').textContent = Math.round(state.darkLightness * 100) + '%';
+  document.getElementById('light-lightness-val').textContent = Math.round(state.lightLightness * 100) + '%';
+  document.documentElement.style.setProperty('--surface-hue', state.surfaceHue);
+  renderPresets();
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(fetchPalette, 80);
+}
+
+function fetchPalette() {
+  const requestId = ++paletteRequest;
+  if (paletteController) paletteController.abort();
+  paletteController = new AbortController();
+  fetch('/api/generate?' + buildQuery(), {signal: paletteController.signal})
+    .then(response => {
+      if (!response.ok) throw new Error('Palette request failed');
+      return response.json();
+    })
+    .then(data => {
+      if (requestId !== paletteRequest) return;
+      state.data = data;
+      renderPalette(data);
+    })
+    .catch(error => {
+      if (error.name === 'AbortError') return;
+      setStatus('Could not update the palette. Try again.', 'error');
+    });
+}
+
+function renderPalette(data) {
+  const modeData = data[state.mode];
+  const palette = modeData.colors;
+  document.documentElement.style.setProperty('--bg', palette.BG);
+  document.documentElement.style.setProperty('--surface', palette.Surface);
+  document.documentElement.style.setProperty('--overlay', palette.Overlay);
+  document.documentElement.style.setProperty('--fg', palette.FG);
+  document.documentElement.style.setProperty('--fg-dim', palette.FGDim);
+  document.documentElement.style.setProperty('--accent', palette.Accent);
+  document.documentElement.style.setProperty('--accent-bg', palette.ButtonBG);
+  document.documentElement.style.setProperty('--accent-fg', palette.ButtonFG);
+  document.documentElement.style.setProperty('--red', palette.Red);
+  document.documentElement.style.setProperty('--green', palette.Green);
+  document.documentElement.style.setProperty('--yellow', palette.Yellow);
+  document.documentElement.style.setProperty('--blue', palette.Blue);
+  document.documentElement.style.setProperty('--magenta', palette.Magenta);
+  document.documentElement.style.setProperty('--cyan', palette.Cyan);
+  document.documentElement.style.setProperty('--orange', palette.Orange);
+  renderPaletteGroups(palette);
+  renderContrasts(modeData.contrasts);
+  renderOutput(modeData.templates);
+}
+
+function renderPaletteGroups(colors) {
+  const sections = PALETTE_GROUPS.map(group => {
+    const section = document.createElement('section');
+    section.className = 'palette-section';
+    const heading = document.createElement('h2');
+    heading.textContent = group.name;
+    const note = document.createElement('p');
+    note.className = 'section-note';
+    note.textContent = group.note;
+    const row = document.createElement('div');
+    row.className = 'swatch-row';
+    row.append(...group.keys.map(key => renderSwatch(key, colors[key])));
+    section.append(heading, note, row);
+    return section;
+  });
+  document.getElementById('palette-groups').replaceChildren(...sections);
+}
+
+function renderSwatch(name, hex) {
+  const swatch = document.createElement('button');
+  swatch.type = 'button';
+  swatch.className = 'swatch';
+  swatch.dataset.name = name;
+  swatch.dataset.hex = hex;
+  swatch.setAttribute('aria-label', 'Copy ' + name + ' ' + hex);
+  const color = document.createElement('div');
+  color.className = 'color';
+  color.style.background = hex;
+  const info = document.createElement('div');
+  info.className = 'info';
+  const label = document.createElement('div');
+  label.className = 'name';
+  label.textContent = name;
+  const value = document.createElement('div');
+  value.className = 'hex';
+  value.textContent = hex;
+  info.append(label, value);
+  swatch.append(color, info);
+  return swatch;
+}
+
+function renderContrasts(contrasts) {
+  const failures = contrasts.filter(check => !check.pass).length;
+  const nodes = contrasts.map(check => {
+    const item = document.createElement('div');
+    item.className = 'contrast-item';
+    item.setAttribute('role', 'listitem');
+    const label = document.createElement('span');
+    label.className = 'label';
+    label.textContent = check.label;
+    const ratio = document.createElement('span');
+    ratio.className = 'ratio ' + (check.pass ? 'pass' : 'fail');
+    ratio.textContent = check.ratio + ':1 ' + (check.pass ? '✓' : '✗');
+    item.append(label, ratio);
+    return item;
+  });
+  document.getElementById('contrasts').replaceChildren(...nodes);
+  setStatus(failures ? failures + ' contrast check' + (failures === 1 ? '' : 's') + ' need attention.' : '', failures ? 'error' : '');
+}
+
+function renderOutput(templates) {
+  const tabs = document.getElementById('output-tabs');
+  const names = Object.keys(templates);
+  if (!templates[state.activeTab]) state.activeTab = names[0];
+  if (tabs.dataset.names !== names.join(',')) {
+    tabs.dataset.names = names.join(',');
+    const buttons = names.map(name => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'output-tab';
+      button.dataset.tab = name;
+      button.textContent = name;
+      return button;
+    });
+    tabs.replaceChildren(...buttons);
+  }
+  document.getElementById('output-text').textContent = templates[state.activeTab] || '';
+  tabs.querySelectorAll('.output-tab').forEach(tab => {
+    const active = tab.dataset.tab === state.activeTab;
+    tab.classList.toggle('active', active);
+    tab.setAttribute('aria-pressed', active);
+  });
+}
+
+function setTab(name) {
+  state.activeTab = name;
+  if (state.data) renderOutput(state.data[state.mode].templates);
+}
+
+function toggleWrapOutput() {
+  state.wrapOutput = !state.wrapOutput;
+  document.getElementById('output-content').classList.toggle('wrap', state.wrapOutput);
+  document.getElementById('wrap-output').setAttribute('aria-pressed', state.wrapOutput);
+  setStatus(state.wrapOutput ? 'Generated output wraps to the viewport.' : 'Generated output preserves exact line width.');
+}
+
+function copyColor(name, hex) {
+  if (!navigator.clipboard) {
+    setStatus('Clipboard is unavailable in this browser.', 'error');
+    return;
+  }
+  navigator.clipboard.writeText(hex)
+    .then(() => setStatus('Copied ' + name + ' ' + hex + '.', 'success'))
+    .catch(() => setStatus('Could not copy ' + name + '.', 'error'));
+}
+
+function copyOutput() {
+  const button = document.getElementById('copy-output');
+  if (!navigator.clipboard) {
+    setStatus('Clipboard is unavailable in this browser.', 'error');
+    return;
+  }
+  navigator.clipboard.writeText(document.getElementById('output-text').textContent)
+    .then(() => {
+      button.textContent = 'Copied!';
+      setStatus('Copied generated output.', 'success');
+      setTimeout(() => { button.textContent = 'Copy'; }, 1500);
+    })
+    .catch(() => setStatus('Could not copy output.', 'error'));
+}
+
+function setStatus(message, tone) {
+  const status = document.getElementById('status-line');
+  status.textContent = message;
+  status.className = 'status-line' + (tone ? ' ' + tone : '');
+}
+
+function applyTheme() {
+  const button = document.getElementById('build-btn');
+  button.disabled = true;
+  button.setAttribute('aria-busy', 'true');
+  button.textContent = 'Building...';
+  setStatus('Building theme outputs...');
+  fetch('/api/apply?' + buildQuery(), {method:'POST'})
+    .then(response => response.json().then(data => {
+      if (!response.ok || data.error) throw new Error(data.error || 'Request failed');
+      return data;
+    }))
+    .then(() => {
+      button.classList.add('built');
+      button.textContent = 'Built ✓';
+      setStatus('Built theme outputs.', 'success');
+      setTimeout(() => { button.classList.remove('built'); button.textContent = 'Build'; }, 2000);
+    })
+    .catch(error => {
+      button.textContent = 'Build';
+      setStatus(error.message || 'Request failed.', 'error');
+    })
+    .finally(() => {
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
+    });
+}
+
+init();
+</script>
+</body>
+</html>

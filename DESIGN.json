@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-03T22:46:32Z",
+  "title": "Design System: gg-theme",
+  "extensions": {
+    "colorMeta": {
+      "dark-bg": {
+        "role": "neutral",
+        "displayName": "Ink Green Field",
+        "canonical": "oklch(0.13 0.018 143)",
+        "sourceToken": "BG",
+        "tonalRamp": ["#040904", "#0e160d", "#142413", "#394737", "#747e73", "#dcdfdb", "#ecefec", "#f6f9f6"]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Raised Ink Surface",
+        "canonical": "oklch(0.19 0.022 143)",
+        "sourceToken": "Surface",
+        "tonalRamp": ["#040904", "#0e160d", "#142413", "#394737", "#747e73", "#dcdfdb", "#ecefec", "#f6f9f6"]
+      },
+      "dark-overlay": {
+        "role": "neutral",
+        "displayName": "Moss Overlay Line",
+        "canonical": "oklch(0.38 0.032 143)",
+        "sourceToken": "Overlay",
+        "tonalRamp": ["#040904", "#0e160d", "#142413", "#394737", "#747e73", "#dcdfdb", "#ecefec", "#f6f9f6"]
+      },
+      "dark-accent": {
+        "role": "primary",
+        "displayName": "Raspberry Accent",
+        "canonical": "oklch(0.72 0.175 360)",
+        "sourceToken": "Accent",
+        "tonalRamp": ["#25000e", "#4d0023", "#7a003c", "#a90053", "#d3487a", "#f96fa0", "#ffacc7", "#ffe3eb"]
+      },
+      "dark-button-bg": {
+        "role": "primary",
+        "displayName": "Raspberry Action Fill",
+        "canonical": "oklch(0.46 0.21 360)",
+        "sourceToken": "ButtonBG",
+        "tonalRamp": ["#25000e", "#4d0023", "#7a003c", "#a90053", "#d3487a", "#f96fa0", "#ffacc7", "#ffe3eb"]
+      },
+      "dark-red": {
+        "role": "secondary",
+        "displayName": "Diagnostic Red",
+        "canonical": "oklch(0.72 0.175 20)",
+        "sourceToken": "Red",
+        "tonalRamp": ["#2a0305", "#5b1118", "#932a31", "#c94b51", "#ff7076", "#ff9da1", "#ffc7c9", "#ffe7e8"]
+      },
+      "dark-orange": {
+        "role": "secondary",
+        "displayName": "Parameter Orange",
+        "canonical": "oklch(0.72 0.175 45)",
+        "sourceToken": "Orange",
+        "tonalRamp": ["#281000", "#5b2500", "#914000", "#c95d16", "#fb7a39", "#ffa476", "#ffcbb4", "#ffe9de"]
+      },
+      "dark-yellow": {
+        "role": "secondary",
+        "displayName": "String Yellow",
+        "canonical": "oklch(0.72 0.175 90)",
+        "sourceToken": "Yellow",
+        "tonalRamp": ["#211600", "#4a3200", "#765200", "#a77600", "#cf9d00", "#eeb500", "#ffd66a", "#ffedc2"]
+      },
+      "dark-green": {
+        "role": "secondary",
+        "displayName": "Function Green",
+        "canonical": "oklch(0.72 0.175 150)",
+        "sourceToken": "Green",
+        "tonalRamp": ["#001b06", "#003d14", "#006326", "#168c40", "#39c266", "#43df76", "#9ef2b0", "#d8fbe0"]
+      },
+      "dark-cyan": {
+        "role": "secondary",
+        "displayName": "Type Cyan",
+        "canonical": "oklch(0.72 0.175 190)",
+        "sourceToken": "Cyan",
+        "tonalRamp": ["#001b1a", "#003d3a", "#00655f", "#00908a", "#00c5bd", "#00e3d9", "#8ff4ee", "#d5fbf8"]
+      },
+      "dark-blue": {
+        "role": "secondary",
+        "displayName": "Number Blue",
+        "canonical": "oklch(0.72 0.175 255)",
+        "sourceToken": "Blue",
+        "tonalRamp": ["#001433", "#002e69", "#004a9d", "#1e75d8", "#4fa6ff", "#5cbfff", "#abd9ff", "#e0f0ff"]
+      },
+      "dark-magenta": {
+        "role": "secondary",
+        "displayName": "Keyword Magenta",
+        "canonical": "oklch(0.72 0.175 325)",
+        "sourceToken": "Magenta",
+        "tonalRamp": ["#25002a", "#510058", "#81208a", "#ae4bb8", "#da79e0", "#fb8cff", "#f8c1fa", "#fee4ff"]
+      },
+      "light-bg": {
+        "role": "neutral",
+        "displayName": "Pale Green Paper",
+        "canonical": "oklch(0.95 0.014 143)",
+        "sourceToken": "BG",
+        "tonalRamp": ["#0f130e", "#3c453c", "#5b675a", "#b4ccb2", "#dbe5da", "#e9f1e9", "#ecefec", "#f6f9f6"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Typora Document Display",
+        "purpose": "Typora h1 and document identity."
+      },
+      "headline": {
+        "displayName": "Typora Section Headline",
+        "purpose": "Typora h2 and strong prose sections."
+      },
+      "body": {
+        "displayName": "Typora Prose",
+        "purpose": "Long reading surfaces in the writing target."
+      },
+      "mono": {
+        "displayName": "Generated Code Mono",
+        "purpose": "Code blocks, source mode, terminal/editor output, and exact generated text."
+      }
+    },
+    "shadows": [
+      {
+        "name": "typora-menu-shadow",
+        "value": "4px 4px 20px rgba(BG, 0.79)",
+        "purpose": "Target-native dark menu depth in Typora only."
+      },
+      {
+        "name": "typora-inset-mark",
+        "value": "inset 0 -1px 0 rgba(BG, 0.25)",
+        "purpose": "Subtle inline document structure."
+      },
+      {
+        "name": "editor-shadow-proxy",
+        "value": "Black token with target alpha suffixes",
+        "purpose": "VS Code widget and scrollbar shadow roles without raw black."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-only",
+        "value": "150ms to 250ms ease-out",
+        "purpose": "Optional web inspector state feedback only, not a theme primitive."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "web-inspector-collapse",
+        "value": "760px",
+        "purpose": "Secondary web tool single-column layout. Not part of generated themes."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Terminal ANSI Transport",
+      "kind": "custom",
+      "refersTo": "terminal-ansi",
+      "description": "Ghostty maps the 16 ANSI slots plus background, foreground, cursor, and selection directly from colors.Palette.",
+      "html": "<div class=\"ds-terminal\"><span class=\"ds-ansi ds-red\">red</span><span class=\"ds-ansi ds-green\">green</span><span class=\"ds-ansi ds-yellow\">yellow</span><span class=\"ds-ansi ds-blue\">blue</span><span class=\"ds-ansi ds-magenta\">magenta</span><span class=\"ds-ansi ds-cyan\">cyan</span></div>",
+      "css": ".ds-terminal { background:#040904; color:#dcdfdb; border:1px solid #394737; border-radius:6px; padding:12px; font:500 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; display:flex; gap:10px; flex-wrap:wrap; } .ds-ansi { padding:2px 0; } .ds-red { color:#ff7076; } .ds-green { color:#39c266; } .ds-yellow { color:#cf9d00; } .ds-blue { color:#4fa6ff; } .ds-magenta { color:#da79e0; } .ds-cyan { color:#00c5bd; }"
+    },
+    {
+      "name": "Editor Chrome Surface",
+      "kind": "card",
+      "refersTo": "editor-surface",
+      "description": "Editor base, sidebar, tab, widget, and border structure using BG, Surface, and Overlay.",
+      "html": "<div class=\"ds-editor\"><div class=\"ds-sidebar\">Explorer</div><div class=\"ds-buffer\"><div><span class=\"ds-keyword\">func</span> <span class=\"ds-fn\">Build</span>() <span class=\"ds-type\">error</span></div><div class=\"ds-comment\">// generated from colors.Palette</div></div></div>",
+      "css": ".ds-editor { display:grid; grid-template-columns:96px 1fr; background:#040904; color:#dcdfdb; border:1px solid #394737; border-radius:6px; overflow:hidden; font:13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; } .ds-sidebar { background:#0e160d; color:#747e73; border-right:1px solid #394737; padding:10px; font:600 11px/1.2 system-ui, sans-serif; text-transform:uppercase; letter-spacing:.05em; } .ds-buffer { padding:10px 12px; } .ds-keyword { color:#da79e0; } .ds-fn { color:#39c266; } .ds-type { color:#00c5bd; font-style:italic; } .ds-comment { color:#747e73; font-style:italic; }"
+    },
+    {
+      "name": "Selection and Search State",
+      "kind": "custom",
+      "refersTo": "editor-selection",
+      "description": "Selection, visual mode, and search backgrounds stay readable without washing out syntax.",
+      "html": "<p class=\"ds-state-line\">Selected <mark class=\"ds-selection\">palette token</mark> and search <mark class=\"ds-search\">match</mark>.</p>",
+      "css": ".ds-state-line { margin:0; background:#040904; color:#dcdfdb; border:1px solid #394737; border-radius:6px; padding:12px; font:13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; } .ds-selection { background:#142413; color:#dcdfdb; padding:1px 3px; border-radius:3px; } .ds-search { background:#1b0f00; color:#dcdfdb; padding:1px 3px; border-radius:3px; }"
+    },
+    {
+      "name": "Diff and Diagnostic Roles",
+      "kind": "custom",
+      "refersTo": "diagnostics",
+      "description": "Diff backgrounds stay tonal while diagnostic foregrounds use the semantic spectrum.",
+      "html": "<div class=\"ds-diff\"><div class=\"ds-add\">+ added line</div><div class=\"ds-change\">~ changed line</div><div class=\"ds-delete\">- deleted line</div></div>",
+      "css": ".ds-diff { background:#040904; color:#dcdfdb; border:1px solid #394737; border-radius:6px; overflow:hidden; font:13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; } .ds-diff div { padding:5px 10px; } .ds-add { background:#011204; color:#39c266; } .ds-change { background:#020d1f; color:#4fa6ff; } .ds-delete { background:#1c0506; color:#ff7076; }"
+    },
+    {
+      "name": "Typora Prose Surface",
+      "kind": "custom",
+      "refersTo": "typora-prose",
+      "description": "The writing target uses Space Grotesk, Satoshi, Berkeley Mono, and the shared dark palette.",
+      "html": "<article class=\"ds-typora\"><h1>Local Color Lab</h1><p>Generated themes should feel personal, precise, and safe to install.</p><code>colors.Generate(cfg, true)</code></article>",
+      "css": ".ds-typora { background:#040904; color:#dcdfdb; border:1px solid #394737; border-radius:8px; padding:20px; max-width:68ch; } .ds-typora h1 { margin:0 0 12px; color:#dcdfdb; font:400 32px/1.1 Space Grotesk, system-ui, sans-serif; letter-spacing:-1px; } .ds-typora p { margin:0 0 12px; color:#dcdfdb; font:400 16px/1.625 Satoshi, system-ui, sans-serif; } .ds-typora code { color:#f96fa0; background:#0e160d; border:1px solid #394737; border-radius:5px; padding:2px 5px; font:13px/1.4 Berkeley Mono, ui-monospace, monospace; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Local Color Lab",
+    "overview": "gg-theme is a generated theme system. The product is the theme itself: the shared OKLCH palette contract, the target-native mappings, and the installed results in Ghostty, Fish, VS Code, Cursor, Neovim, and Typora. The optional browser tool is only a local inspector for the contract.",
+    "keyCharacteristics": [
+      "Theme-first: generated targets are the primary product surface.",
+      "Token-governed: every color decision traces back to colors.Palette.",
+      "Target-native: each app receives mappings that fit its own rendering model.",
+      "Color-forward: syntax and ANSI hues are vivid enough to be personal, never arbitrary.",
+      "Contrast-safe: readability checks are generator correctness."
+    ],
+    "rules": [
+      {
+        "name": "The Palette Contract Rule",
+        "body": "If a generated target needs a color, map it to a named colors.Palette token or add a token to the generator. Raw target-local color drift is prohibited.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tinted Neutral Rule",
+        "body": "Pure black, pure white, and untinted grey are forbidden. Every neutral must keep a relationship to SurfaceHue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Contrast Is Correctness Rule",
+        "body": "colors.ContrastChecks() is part of the theme contract. A beautiful token that fails its required pair is not shippable.",
+        "section": "colors"
+      },
+      {
+        "name": "The Target Owns Type Rule",
+        "body": "The theme may style Typora typography directly. Editors, terminals, and shell targets receive color mappings without pretending to own their UI font stack.",
+        "section": "typography"
+      },
+      {
+        "name": "The Code Must Stay Exact Rule",
+        "body": "Code surfaces prioritize spacing, contrast, and token distinction over decorative type treatments.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tonal Layer Rule",
+        "body": "Reach for Surface, Overlay, and state fills before shadows. Theme depth should read as palette structure.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Target-Native Depth Rule",
+        "body": "A shadow is allowed only when the target has a native role for it. Do not invent decorative elevation in generated themes.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do treat the generated theme as the product. The web tool is secondary.",
+      "Do keep colors/ as the visual source of truth: ThemeConfig, Generate(), Palette, and contrast checks define the system.",
+      "Do regenerate build/ after changing colors/ or themes/templates/.",
+      "Do map every target role back to named tokens, including Typora Mermaid and source mode CSS.",
+      "Do preserve target-native behavior: Ghostty wants ANSI slots, Fish wants shell roles, VS Code wants workbench roles, Neovim wants highlight groups, Typora wants document typography.",
+      "Do validate contrast before increasing chroma or lowering lightness.",
+      "Do keep themes.Build() and themes.Link() aligned when targets change.",
+      "Do treat themes.Link() as destructive replacement of configured install paths."
+    ],
+    "donts": [
+      "Don't make the optional web tool appear more important than the generated themes.",
+      "Don't hand-edit files in build/.",
+      "Don't introduce pure black, pure white, raw greys, or unmanaged raw rgba literals into templates.",
+      "Don't create generic SaaS dashboard chrome.",
+      "Don't make a drab monochrome developer utility.",
+      "Don't add decorative UI that obscures color judgment or generated output.",
+      "Don't let control-panel sprawl turn quick theme iteration into design-system maintenance.",
+      "Don't use color as decoration when it does not explain syntax, state, contrast, or target behavior.",
+      "Don't use side-stripe borders greater than 1px, gradient text, decorative glass, hero metrics, repeated generic card grids, or modals as the first solution."
+    ]
+  }
+}
