@@ -193,9 +193,9 @@ func toPaletteJSON(name string, cfg colors.ThemeConfig, p colors.Palette) (*pale
 	}
 	for key, tmplPath := range map[string]string{
 		"typora.css":        "templates/typora/theme.css.tmpl",
-		"typora/codeblock":  "templates/typora/codeblock.dark.css.tmpl",
-		"typora/mermaid":    "templates/typora/mermaid.dark.css.tmpl",
-		"typora/sourcemode": "templates/typora/sourcemode.dark.css.tmpl",
+		"typora/codeblock":  "templates/typora/codeblock.css.tmpl",
+		"typora/mermaid":    "templates/typora/mermaid.css.tmpl",
+		"typora/sourcemode": "templates/typora/sourcemode.css.tmpl",
 	} {
 		if err := addTemplate(templates, key, tmplPath, data); err != nil {
 			return nil, err

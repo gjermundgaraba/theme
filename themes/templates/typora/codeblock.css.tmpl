@@ -4,7 +4,7 @@
 /** code highlight */
 
 .cm-s-inner .cm-operator {
-    color: {{.Magenta}};
+    color: {{.SyntaxKeyword}};
 }
 
 .cm-s-inner .cm-property {
@@ -12,15 +12,15 @@
 }
 
 .cm-s-inner .cm-keyword {
-    color: {{.Magenta}};
+    color: {{.SyntaxKeyword}};
 }
 
 .cm-s-inner .cm-tag {
-    color: {{.Magenta}};
+    color: {{.SyntaxKeyword}};
 }
 
 .cm-s-inner .cm-attribute {
-    color: {{.Green}};
+    color: {{.SyntaxBuiltin}};
 }
 
 .CodeMirror div.CodeMirror-cursor {
@@ -30,46 +30,46 @@
 
 .cm-s-inner .cm-string,
 .cm-s-inner .cm-string-2 {
-    color: {{.Yellow}};
+    color: {{.SyntaxString}};
 }
 
 .cm-s-inner .cm-comment,
 .cm-s-inner.cm-comment {
-    color: {{.FGDim}};
+    color: {{.SyntaxComment}};
 }
 
 .cm-s-inner .cm-header,
 .cm-s-inner.cm-header,
 .cm-s-inner .cm-def,
 .cm-s-inner.cm-def {
-    color: {{.Cyan}};
+    color: {{.SyntaxFunction}};
 }
 
 .cm-s-inner .cm-quote,
 .cm-s-inner.cm-quote {
-    color: {{.Green}};
+    color: {{.SyntaxBuiltin}};
 }
 
 .cm-s-inner .cm-hr {
-    color: {{.FGDim}};
+    color: {{.SyntaxComment}};
 }
 
 .cm-s-inner .cm-link {
-    color: {{.BrightBlue}};
+    color: {{.SyntaxLink}};
 }
 
 .cm-s-inner .cm-negative {
-    color: {{.Red}};
+    color: {{.SyntaxError}};
 }
 
 .cm-s-inner .cm-positive {
-    color: {{.Green}};
+    color: {{.SyntaxBuiltin}};
 }
 
 .cm-s-inner .cm-meta,
 .cm-s-inner .cm-qualifier,
 .cm-s-inner .cm-builtin {
-    color: {{.Green}};
+    color: {{.SyntaxBuiltin}};
 }
 
 .cm-s-inner .cm-bracket {
@@ -78,11 +78,11 @@
 
 .cm-s-inner .cm-atom,
 .cm-s-inner.cm-atom {
-    color: {{.Cyan}};
+    color: {{.SyntaxConstant}};
 }
 
 .cm-s-inner .cm-number {
-    color: {{.Blue}};
+    color: {{.SyntaxNumber}};
 }
 
 .cm-s-inner .cm-variable,
@@ -91,8 +91,7 @@
 }
 
 .cm-s-inner .cm-variable-3 {
-    color: {{.Cyan}};
-    font-style: italic;
+    color: {{.SyntaxConstant}};
 }
 
 .CodeMirror-selectedtext,

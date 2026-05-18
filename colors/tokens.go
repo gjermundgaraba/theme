@@ -50,6 +50,15 @@ func PaletteTokens(p Palette) []PaletteToken {
 		{"BrightMagenta", p.BrightMagenta, "bright ANSI magenta"},
 		{"BrightCyan", p.BrightCyan, "bright ANSI cyan"},
 		{"BrightWhite", p.BrightWhite, "bright ANSI white slot, conventional terminal extreme"},
+		{"SyntaxKeyword", p.SyntaxKeyword, "syntax: keywords, tags, operators, properties (legible on Surface)"},
+		{"SyntaxString", p.SyntaxString, "syntax: string literals (legible on Surface)"},
+		{"SyntaxNumber", p.SyntaxNumber, "syntax: numeric literals (legible on Surface)"},
+		{"SyntaxComment", p.SyntaxComment, "syntax: comments, formatting, and subdued tokens"},
+		{"SyntaxConstant", p.SyntaxConstant, "syntax: atoms, booleans, constants, headings"},
+		{"SyntaxFunction", p.SyntaxFunction, "syntax: function definitions and named references"},
+		{"SyntaxBuiltin", p.SyntaxBuiltin, "syntax: builtins, attributes, quotes, positive markers"},
+		{"SyntaxLink", p.SyntaxLink, "syntax: links and URLs"},
+		{"SyntaxError", p.SyntaxError, "syntax: errors, negative markers, deletions"},
 	}
 
 	tokens := make([]PaletteToken, len(fields))

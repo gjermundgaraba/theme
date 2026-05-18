@@ -1,0 +1,108 @@
+/* gg-theme — generated. Do not edit. */
+
+:root {
+  --background: {{.Light.BG}};
+  --foreground: {{.Light.FG}};
+
+  --card: {{.Light.Surface}};
+  --card-foreground: {{.Light.FG}};
+
+  --popover: {{.Light.Surface}};
+  --popover-foreground: {{.Light.FG}};
+
+  --primary: {{.Light.ButtonBG}};
+  --primary-foreground: {{.Light.ButtonFG}};
+
+  --secondary: {{.Light.Surface}};
+  --secondary-foreground: {{.Light.FG}};
+
+  --muted: {{.Light.Surface}};
+  --muted-foreground: {{.Light.FGDim}};
+
+  --accent: {{.Light.Surface}};
+  --accent-foreground: {{.Light.FG}};
+
+  --destructive: {{.Light.Red}};
+  --destructive-foreground: {{.Light.DebugFG}};
+
+  --success: {{.Light.Green}};
+  --success-foreground: {{.Light.DebugFG}};
+
+  --warning: {{.Light.Orange}};
+  --warning-foreground: {{.Light.DebugFG}};
+
+  --info: {{.Light.Cyan}};
+  --info-foreground: {{.Light.DebugFG}};
+
+  --border: color-mix(in oklab, var(--foreground) 12%, transparent);
+  --input: color-mix(in oklab, var(--foreground) 18%, transparent);
+  --ring: {{.Light.Accent}};
+
+  --selection: {{.Light.SelectionBG}};
+  --selection-foreground: {{.Light.SelectionFG}};
+
+  --chart-1: {{.Light.Blue}};
+  --chart-2: {{.Light.Green}};
+  --chart-3: {{.Light.Orange}};
+  --chart-4: {{.Light.Magenta}};
+  --chart-5: {{.Light.Cyan}};
+
+  --radius: 0.5rem;
+
+  color-scheme: light;
+}
+
+.dark {
+  --background: {{.Dark.BG}};
+  --foreground: {{.Dark.FG}};
+
+  --card: {{.Dark.Surface}};
+  --card-foreground: {{.Dark.FG}};
+
+  --popover: {{.Dark.Surface}};
+  --popover-foreground: {{.Dark.FG}};
+
+  --primary: {{.Dark.ButtonBG}};
+  --primary-foreground: {{.Dark.ButtonFG}};
+
+  --secondary: {{.Dark.Surface}};
+  --secondary-foreground: {{.Dark.FG}};
+
+  --muted: {{.Dark.Surface}};
+  --muted-foreground: {{.Dark.FGDim}};
+
+  --accent: {{.Dark.Surface}};
+  --accent-foreground: {{.Dark.FG}};
+
+  --destructive: {{.Dark.Red}};
+  --destructive-foreground: {{.Dark.DebugFG}};
+
+  --success: {{.Dark.Green}};
+  --success-foreground: {{.Dark.DebugFG}};
+
+  --warning: {{.Dark.Orange}};
+  --warning-foreground: {{.Dark.DebugFG}};
+
+  --info: {{.Dark.Cyan}};
+  --info-foreground: {{.Dark.DebugFG}};
+
+  --border: color-mix(in oklab, var(--foreground) 14%, transparent);
+  --input: color-mix(in oklab, var(--foreground) 22%, transparent);
+  --ring: {{.Dark.Accent}};
+
+  --selection: {{.Dark.SelectionBG}};
+  --selection-foreground: {{.Dark.SelectionFG}};
+
+  --chart-1: {{.Dark.Blue}};
+  --chart-2: {{.Dark.Green}};
+  --chart-3: {{.Dark.Orange}};
+  --chart-4: {{.Dark.Magenta}};
+  --chart-5: {{.Dark.Cyan}};
+
+  color-scheme: dark;
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--selection-foreground);
+}

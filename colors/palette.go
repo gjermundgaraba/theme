@@ -20,6 +20,15 @@ type Palette struct {
 	BrightYellow, BrightBlue            string
 	BrightMagenta, BrightCyan           string
 	BrightWhite                         string
+
+	// Semantic syntax tokens. Decouple editor-theme roles from the raw
+	// ANSI hues so templates name the role, not the color. Guaranteed
+	// >=3:1 contrast against Surface in both light and dark modes
+	// (enforced by ContrastChecks).
+	SyntaxKeyword, SyntaxString, SyntaxNumber  string
+	SyntaxComment, SyntaxConstant              string
+	SyntaxFunction, SyntaxBuiltin              string
+	SyntaxLink, SyntaxError                    string
 }
 
 // ThemeConfig controls palette generation.
@@ -42,8 +51,8 @@ const (
 
 // DefaultConfig is the project's canonical hue and lightness configuration.
 var DefaultConfig = ThemeConfig{
-	SurfaceHue:            147,
-	AccentHue:             360,
+	SurfaceHue:            150,
+	AccentHue:             150,
 	DarkSurfaceLightness:  0.30,
 	LightSurfaceLightness: 0.88,
 }

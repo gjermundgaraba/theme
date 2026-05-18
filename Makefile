@@ -1,4 +1,7 @@
-.PHONY: link serve test
+.PHONY: build link serve test
+
+build:
+	go run ./cli build
 
 link:
 	go run ./cli link

@@ -10,10 +10,15 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: gg-theme <link [--dry-run]|serve>")
+		fmt.Fprintln(os.Stderr, "usage: gg-theme <build|link [--dry-run]|serve>")
 		os.Exit(1)
 	}
 	switch os.Args[1] {
+	case "build":
+		if err := themes.Build(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 	case "link":
 		opts, err := parseLinkOptions(os.Args[2:])
 		if err != nil {

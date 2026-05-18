@@ -85,6 +85,16 @@ func generateDark(cfg ThemeConfig) Palette {
 		BrightMagenta: oklchHex(brL, brC, magH),
 		BrightCyan:    oklchHex(brL, brC, cynH),
 		BrightWhite:   oklchHex(0.985, 0.006, h),
+
+		SyntaxKeyword:  oklchHex(synL, synC, magH),
+		SyntaxString:   oklchHex(synL, synC, yelH),
+		SyntaxNumber:   oklchHex(synL, synC, bluH),
+		SyntaxComment:  oklchHex(fgDimL, fgDimC, h),
+		SyntaxConstant: oklchHex(synL, synC, cynH),
+		SyntaxFunction: oklchHex(brL, brC, cynH),
+		SyntaxBuiltin:  oklchHex(synL, synC, grnH),
+		SyntaxLink:     oklchHex(brL, brC, bluH),
+		SyntaxError:    oklchHex(synL, synC, redH),
 	}
 }
 
@@ -149,5 +159,15 @@ func generateLight(cfg ThemeConfig) Palette {
 		BrightMagenta: oklchHex(brL, brC, magH),
 		BrightCyan:    oklchHex(brL, brC, cynH),
 		BrightWhite:   oklchHex(0.98, 0.005, h),
+
+		SyntaxKeyword:  oklchHex(synL, synC, magH),
+		SyntaxString:   oklchHex(synL, synC, yelH),
+		SyntaxNumber:   oklchHex(synL, synC, bluH),
+		SyntaxComment:  oklchHex(fgDimL, fgDimC, h),
+		SyntaxConstant: oklchHex(synL, synC, cynH),
+		SyntaxFunction: oklchHex(brL, brC, cynH),
+		SyntaxBuiltin:  oklchHex(synL, synC, grnH),
+		SyntaxLink:     oklchHex(brL, brC, bluH),
+		SyntaxError:    oklchHex(synL, synC, redH),
 	}
 }

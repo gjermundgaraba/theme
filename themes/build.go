@@ -23,9 +23,17 @@ type ThemeData struct {
 	colors.Palette
 }
 
+// DualThemeData carries both palettes for templates that emit a single output
+// containing light and dark modes (e.g. the npm package).
+type DualThemeData struct {
+	Light colors.Palette
+	Dark  colors.Palette
+}
+
 var funcMap = template.FuncMap{
-	"hex":  func(s string) string { return strings.TrimPrefix(s, "#") },
-	"rgba": rgba,
+	"hex":   func(s string) string { return strings.TrimPrefix(s, "#") },
+	"rgba":  rgba,
+	"oklch": oklchCSS,
 }
 
 func rgba(s string, alpha float64) string {
@@ -35,6 +43,18 @@ func rgba(s string, alpha float64) string {
 	}
 	r, g, b := c.RGB255()
 	return fmt.Sprintf("rgba(%d, %d, %d, %.2f)", r, g, b, alpha)
+}
+
+// oklchCSS converts a hex string to CSS-friendly OKLCH form:
+// space-separated, no commas, no degree sign. Used by primitives.css so
+// consumers can derive variants via color-mix and L/C math.
+func oklchCSS(s string) string {
+	c, err := colorful.Hex(s)
+	if err != nil {
+		return s
+	}
+	l, ch, h := c.OkLch()
+	return fmt.Sprintf("oklch(%.2f %.3f %.0f)", l, ch, h)
 }
 
 func themeData() []ThemeData {
@@ -94,6 +114,10 @@ func build(allThemes []ThemeData) error {
 		return err
 	}
 
+	if err := renderNpm(allThemes); err != nil {
+		return err
+	}
+
 	if err := renderPaletteReports(allThemes); err != nil {
 		return err
 	}
@@ -109,9 +133,9 @@ func build(allThemes []ThemeData) error {
 			out  string
 		}{
 			{"templates/typora/theme.css.tmpl", filepath.Join("build", "typora", td.Name+".css")},
-			{"templates/typora/codeblock.dark.css.tmpl", filepath.Join(typoraDir, "codeblock.css")},
-			{"templates/typora/mermaid.dark.css.tmpl", filepath.Join(typoraDir, "mermaid.css")},
-			{"templates/typora/sourcemode.dark.css.tmpl", filepath.Join(typoraDir, "sourcemode.css")},
+			{"templates/typora/codeblock.css.tmpl", filepath.Join(typoraDir, "codeblock.css")},
+			{"templates/typora/mermaid.css.tmpl", filepath.Join(typoraDir, "mermaid.css")},
+			{"templates/typora/sourcemode.css.tmpl", filepath.Join(typoraDir, "sourcemode.css")},
 		}
 		for _, t := range typoraTemplates {
 			tmpl, err := parseTemplate(t.tmpl)
@@ -123,6 +147,47 @@ func build(allThemes []ThemeData) error {
 			}
 		}
 		if err := copyEmbeddedDir("templates/typora/assets", typoraDir); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func renderNpm(allThemes []ThemeData) error {
+	dual := DualThemeData{}
+	found := 0
+	for _, td := range allThemes {
+		switch td.Name {
+		case "gg-light":
+			dual.Light = td.Palette
+			found++
+		case "gg-dark":
+			dual.Dark = td.Palette
+			found++
+		}
+	}
+	if found != 2 {
+		return fmt.Errorf("npm render requires gg-light and gg-dark palettes, found %d", found)
+	}
+
+	targets := []struct {
+		tmpl string
+		out  string
+		data any
+	}{
+		{"templates/npm/index.css.tmpl", filepath.Join("build", "npm", "index.css"), dual},
+		{"templates/npm/tailwind.css.tmpl", filepath.Join("build", "npm", "tailwind.css"), dual},
+		{"templates/npm/primitives.css.tmpl", filepath.Join("build", "npm", "primitives.css"), dual},
+		{"templates/npm/tokens.json.tmpl", filepath.Join("build", "npm", "tokens.json"), dual},
+		{"templates/npm/package.json.tmpl", filepath.Join("build", "npm", "package.json"), nil},
+		{"templates/npm/README.md.tmpl", filepath.Join("build", "npm", "README.md"), nil},
+	}
+	for _, t := range targets {
+		tmpl, err := parseTemplate(t.tmpl)
+		if err != nil {
+			return err
+		}
+		if err := render(tmpl, t.out, t.data); err != nil {
 			return err
 		}
 	}

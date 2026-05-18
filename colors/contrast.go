@@ -79,6 +79,16 @@ func ContrastChecks(p Palette) []ContrastCheck {
 		{"BrightBlue on BG", p.BrightBlue, p.BG, 3.0},
 		{"BrightMagenta on BG", p.BrightMagenta, p.BG, 3.0},
 		{"BrightCyan on BG", p.BrightCyan, p.BG, 3.0},
+
+		{"SyntaxKeyword on Surface", p.SyntaxKeyword, p.Surface, 3.0},
+		{"SyntaxString on Surface", p.SyntaxString, p.Surface, 3.0},
+		{"SyntaxNumber on Surface", p.SyntaxNumber, p.Surface, 3.0},
+		{"SyntaxComment on Surface", p.SyntaxComment, p.Surface, 3.0},
+		{"SyntaxConstant on Surface", p.SyntaxConstant, p.Surface, 3.0},
+		{"SyntaxFunction on Surface", p.SyntaxFunction, p.Surface, 3.0},
+		{"SyntaxBuiltin on Surface", p.SyntaxBuiltin, p.Surface, 3.0},
+		{"SyntaxLink on Surface", p.SyntaxLink, p.Surface, 3.0},
+		{"SyntaxError on Surface", p.SyntaxError, p.Surface, 3.0},
 	}
 
 	checks := make([]ContrastCheck, len(pairs))
@@ -124,6 +134,8 @@ func DumpPalette(p Palette) {
 		"Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White", "Orange",
 		"BrightBlack", "BrightRed", "BrightGreen", "BrightYellow", "BrightBlue",
 		"BrightMagenta", "BrightCyan", "BrightWhite",
+		"SyntaxKeyword", "SyntaxString", "SyntaxNumber", "SyntaxComment",
+		"SyntaxConstant", "SyntaxFunction", "SyntaxBuiltin", "SyntaxLink", "SyntaxError",
 	}
 	vals := map[string]string{
 		"BG": p.BG, "Surface": p.Surface, "Overlay": p.Overlay,
@@ -140,6 +152,10 @@ func DumpPalette(p Palette) {
 		"BrightGreen": p.BrightGreen, "BrightYellow": p.BrightYellow,
 		"BrightBlue": p.BrightBlue, "BrightMagenta": p.BrightMagenta,
 		"BrightCyan": p.BrightCyan, "BrightWhite": p.BrightWhite,
+		"SyntaxKeyword": p.SyntaxKeyword, "SyntaxString": p.SyntaxString,
+		"SyntaxNumber": p.SyntaxNumber, "SyntaxComment": p.SyntaxComment,
+		"SyntaxConstant": p.SyntaxConstant, "SyntaxFunction": p.SyntaxFunction,
+		"SyntaxBuiltin": p.SyntaxBuiltin, "SyntaxLink": p.SyntaxLink, "SyntaxError": p.SyntaxError,
 	}
 
 	var sb strings.Builder
