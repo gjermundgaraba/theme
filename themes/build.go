@@ -118,6 +118,10 @@ func build(allThemes []ThemeData) error {
 		return err
 	}
 
+	if err := renderZed(allThemes); err != nil {
+		return err
+	}
+
 	if err := renderPaletteReports(allThemes); err != nil {
 		return err
 	}
@@ -153,7 +157,7 @@ func build(allThemes []ThemeData) error {
 	return nil
 }
 
-func renderNpm(allThemes []ThemeData) error {
+func dualThemeData(allThemes []ThemeData, target string) (DualThemeData, error) {
 	dual := DualThemeData{}
 	found := 0
 	for _, td := range allThemes {
@@ -167,7 +171,15 @@ func renderNpm(allThemes []ThemeData) error {
 		}
 	}
 	if found != 2 {
-		return fmt.Errorf("npm render requires gg-light and gg-dark palettes, found %d", found)
+		return dual, fmt.Errorf("%s render requires gg-light and gg-dark palettes, found %d", target, found)
+	}
+	return dual, nil
+}
+
+func renderNpm(allThemes []ThemeData) error {
+	dual, err := dualThemeData(allThemes, "npm")
+	if err != nil {
+		return err
 	}
 
 	targets := []struct {
@@ -192,6 +204,18 @@ func renderNpm(allThemes []ThemeData) error {
 		}
 	}
 	return nil
+}
+
+func renderZed(allThemes []ThemeData) error {
+	dual, err := dualThemeData(allThemes, "zed")
+	if err != nil {
+		return err
+	}
+	tmpl, err := parseTemplate("templates/zed/theme.json.tmpl")
+	if err != nil {
+		return err
+	}
+	return render(tmpl, filepath.Join("build", "zed", "gg-theme.json"), dual)
 }
 
 func parseTemplate(path string) (*template.Template, error) {
@@ -275,7 +299,7 @@ func atomicWriteFile(path string, data []byte, perm fs.FileMode) error {
 }
 
 // RenderTemplateString renders a named embedded template file to a string.
-func RenderTemplateString(tmplPath string, data ThemeData) (string, error) {
+func RenderTemplateString(tmplPath string, data any) (string, error) {
 	t, err := parseTemplate(tmplPath)
 	if err != nil {
 		return "", err

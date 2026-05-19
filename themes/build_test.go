@@ -47,7 +47,7 @@ func TestBuildWithConfigDoesNotMutateGlobalConfigAndUsesTyporaPalettes(t *testin
 	}
 }
 
-func TestBuildOutputsValidVSCodeJSON(t *testing.T) {
+func TestBuildOutputsValidEditorJSON(t *testing.T) {
 	t.Chdir(t.TempDir())
 	if err := Build(); err != nil {
 		t.Fatal(err)
@@ -56,6 +56,7 @@ func TestBuildOutputsValidVSCodeJSON(t *testing.T) {
 		filepath.Join("build", "vscode", "gg-theme", "package.json"),
 		filepath.Join("build", "vscode", "gg-theme", "themes", "gg-dark.json"),
 		filepath.Join("build", "vscode", "gg-theme", "themes", "gg-light.json"),
+		filepath.Join("build", "zed", "gg-theme.json"),
 	} {
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -65,6 +66,45 @@ func TestBuildOutputsValidVSCodeJSON(t *testing.T) {
 		if err := json.Unmarshal(data, &decoded); err != nil {
 			t.Fatalf("%s is not valid JSON: %v", path, err)
 		}
+	}
+}
+
+func TestBuildOutputsZedThemeFamily(t *testing.T) {
+	t.Chdir(t.TempDir())
+	if err := Build(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join("build", "zed", "gg-theme.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var decoded struct {
+		Schema string `json:"$schema"`
+		Name   string `json:"name"`
+		Author string `json:"author"`
+		Themes []struct {
+			Name       string `json:"name"`
+			Appearance string `json:"appearance"`
+		} `json:"themes"`
+	}
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		t.Fatal(err)
+	}
+	if decoded.Schema != "https://zed.dev/schema/themes/v0.2.0.json" {
+		t.Fatalf("unexpected Zed schema %q", decoded.Schema)
+	}
+	if decoded.Name != "GG" || decoded.Author == "" {
+		t.Fatalf("unexpected Zed theme family metadata: %+v", decoded)
+	}
+	if len(decoded.Themes) != 2 {
+		t.Fatalf("Zed theme family has %d themes, want 2", len(decoded.Themes))
+	}
+	got := map[string]string{}
+	for _, theme := range decoded.Themes {
+		got[theme.Name] = theme.Appearance
+	}
+	if got["GG Dark"] != "dark" || got["GG Light"] != "light" {
+		t.Fatalf("unexpected Zed themes: %#v", got)
 	}
 }
 

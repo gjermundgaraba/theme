@@ -9,6 +9,7 @@ The generator is the product center. It renders dark and light themes from share
 - Ghostty
 - Fish shell
 - VS Code / Cursor
+- Zed
 - Typora dark and light themes
 - Neovim
 
@@ -46,6 +47,7 @@ The generator UI is the only build entry point. Start it with `make serve`, adju
 - Fish: `~/.config/fish/themes/`
 - VS Code: `~/.vscode/extensions/gg-theme`
 - Cursor: `~/.cursor/extensions/gg-theme`
+- Zed: `~/.config/zed/themes/gg-theme.json`
 - Typora: `~/Library/Application Support/abnerworks.Typora/themes/`
 - Neovim: `~/.config/nvim/colors/`
 
@@ -60,7 +62,7 @@ colors/                 palette contract, OKLCH generation, contrast checks
 themes/                 embedded templates, build, link, render helpers
   build.go              render list and template execution
   link.go               install symlink list
-  templates/            Ghostty, Fish, VS Code, Neovim, Typora templates
+  templates/            Ghostty, Fish, VS Code, Zed, Neovim, Typora templates
 
 theme-generator/        optional local web generator
   server.go             HTTP server and palette API

@@ -22,24 +22,30 @@
   --magenta: {{.Palette.Magenta}};
   --cyan: {{.Palette.Cyan}};
   --orange: {{.Palette.Orange}};
-  --radius: 8px;
+
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-pill: 16px;
+  --motion-fast: .15s ease-out;
+  --hit: 40px;
 }
 html, body { min-height:100%; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background:var(--bg); color:var(--fg); }
 body { display:grid; min-height:100vh; grid-template-rows:auto 1fr auto; grid-template-columns:260px minmax(0, 1fr); }
 button, input { font:inherit; }
 button:focus-visible, input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-button[aria-pressed="true"] { color:var(--accent); }
 
 header { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--overlay); }
 header h1 { font-size:15px; font-weight:650; letter-spacing:-0.3px; }
 header h1 span { color:var(--accent); }
 .header-actions { display:flex; gap:8px; align-items:center; }
 
-.mode-toggle { display:flex; background:var(--bg); border-radius:6px; overflow:hidden; border:1px solid var(--overlay); }
-.mode-toggle button { min-height:36px; padding:5px 14px; font-size:12px; font-weight:600; background:none; color:var(--fg-dim); border:0; cursor:pointer; transition:background-color .15s ease-out, color .15s ease-out; }
-.mode-toggle button.active { background:var(--accent-bg); color:var(--accent-fg); }
+.mode-toggle { display:flex; background:var(--bg); border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--overlay); }
+.mode-toggle button { min-height:var(--hit); padding:5px 14px; font-size:12px; font-weight:600; background:none; color:var(--fg-dim); border:0; cursor:pointer; transition:background-color var(--motion-fast), color var(--motion-fast); }
+.mode-toggle button[aria-checked="true"] { background:var(--accent-bg); color:var(--accent-fg); }
 
-.build-btn { min-height:36px; padding:5px 16px; font-size:12px; font-weight:650; border-radius:6px; border:1px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer; transition:background-color .15s ease-out, color .15s ease-out, border-color .15s ease-out, opacity .15s ease-out; }
+.build-btn { min-height:var(--hit); padding:5px 16px; font-size:12px; font-weight:650; border-radius:var(--radius-md); border:1px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer; transition:background-color var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast), opacity var(--motion-fast); }
 .build-btn:hover { background:var(--accent-bg); color:var(--accent-fg); }
 .build-btn:disabled { opacity:.55; cursor:default; }
 .build-btn.built { border-color:var(--green); color:var(--green); }
@@ -49,15 +55,21 @@ aside.controls { min-width:0; padding:16px; overflow-y:auto; border-right:1px so
 .control-group label, .control-heading { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.55px; color:var(--fg-dim); margin-bottom:8px; }
 .control-group .value { float:right; color:var(--accent); font-family:'SF Mono', Menlo, monospace; }
 
-.hue-slider { appearance:none; width:100%; min-height:32px; border-radius:16px; outline:none; cursor:pointer; background:linear-gradient(to right,hsl(0,80%,60%),hsl(60,80%,55%),hsl(120,70%,50%),hsl(180,80%,50%),hsl(240,70%,60%),hsl(300,70%,60%),hsl(360,80%,60%)); }
+.hue-slider { appearance:none; width:100%; min-height:var(--hit); border-radius:var(--radius-pill); outline:none; cursor:pointer;
+  background:linear-gradient(to right,
+    oklch(0.75 0.18 0deg), oklch(0.75 0.18 30deg), oklch(0.75 0.18 60deg),
+    oklch(0.75 0.18 90deg), oklch(0.75 0.18 120deg), oklch(0.75 0.18 150deg),
+    oklch(0.75 0.18 180deg), oklch(0.75 0.18 210deg), oklch(0.75 0.18 240deg),
+    oklch(0.75 0.18 270deg), oklch(0.75 0.18 300deg), oklch(0.75 0.18 330deg),
+    oklch(0.75 0.18 360deg)); }
 .hue-slider::-webkit-slider-thumb { appearance:none; width:24px; height:24px; border-radius:50%; background:var(--accent-fg); border:3px solid var(--bg); box-shadow:0 0 0 1px var(--overlay), 0 2px 6px color-mix(in oklch, var(--bg) 70%, transparent); }
 .hue-slider::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:var(--accent-fg); border:3px solid var(--bg); box-shadow:0 0 0 1px var(--overlay), 0 2px 6px color-mix(in oklch, var(--bg) 70%, transparent); }
-.lightness-slider { appearance:none; width:100%; min-height:32px; border-radius:16px; outline:none; cursor:pointer; background:linear-gradient(to right, oklch(0.10 0.02 var(--surface-hue, 143)), oklch(0.50 0.02 var(--surface-hue, 143)), oklch(0.95 0.01 var(--surface-hue, 143))); }
+.lightness-slider { appearance:none; width:100%; min-height:var(--hit); border-radius:var(--radius-pill); outline:none; cursor:pointer; background:linear-gradient(to right, oklch(0.10 0.02 var(--surface-hue, 143deg)), oklch(0.50 0.02 var(--surface-hue, 143deg)), oklch(0.95 0.01 var(--surface-hue, 143deg))); }
 .lightness-slider::-webkit-slider-thumb { appearance:none; width:24px; height:24px; border-radius:50%; background:var(--accent-fg); border:3px solid var(--bg); box-shadow:0 0 0 1px var(--overlay), 0 2px 6px color-mix(in oklch, var(--bg) 70%, transparent); }
 .lightness-slider::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:var(--accent-fg); border:3px solid var(--bg); box-shadow:0 0 0 1px var(--overlay), 0 2px 6px color-mix(in oklch, var(--bg) 70%, transparent); }
 
 .presets { display:flex; flex-wrap:wrap; gap:6px; }
-.preset-btn { min-height:32px; padding:4px 10px; font-size:11px; font-weight:600; border-radius:4px; border:1px solid var(--overlay); background:var(--bg); color:var(--fg); cursor:pointer; transition:background-color .15s ease-out, color .15s ease-out, border-color .15s ease-out; }
+.preset-btn { min-height:var(--hit); padding:4px 10px; font-size:11px; font-weight:600; border-radius:var(--radius-sm); border:1px solid var(--overlay); background:var(--bg); color:var(--fg); cursor:pointer; transition:background-color var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast); }
 .preset-btn:hover { border-color:var(--accent); }
 .preset-btn.active { background:var(--accent-bg); color:var(--accent-fg); border-color:var(--accent-bg); }
 
@@ -74,16 +86,17 @@ aside.controls { min-width:0; padding:16px; overflow-y:auto; border-right:1px so
 main { min-width:0; padding:20px; overflow:auto; }
 .palette-section { margin-bottom:24px; }
 .palette-section h2 { font-size:12px; font-weight:750; text-transform:uppercase; letter-spacing:0.65px; color:var(--fg); margin-bottom:4px; }
-.section-note { max-width:70ch; margin-bottom:10px; color:var(--fg-dim); font-size:12px; line-height:1.45; }
+.section-note { max-width:70ch; margin-bottom:10px; color:var(--fg-dim); font-size:13px; line-height:1.45; }
 .swatch-row { display:grid; grid-template-columns:repeat(auto-fill, minmax(72px, 1fr)); gap:8px; }
-.swatch { min-width:0; border-radius:var(--radius); overflow:hidden; border:1px solid var(--overlay); background:var(--surface); color:inherit; text-align:left; cursor:pointer; transition:transform .1s ease-out, border-color .15s ease-out; }
+.swatch { min-width:0; border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--overlay); background:var(--surface); color:inherit; text-align:left; cursor:pointer; transition:transform .1s ease-out, border-color var(--motion-fast); }
 .swatch:hover { transform:translateY(-2px); border-color:var(--accent); }
 .swatch .color { height:46px; }
 .swatch .info { padding:6px 7px; background:var(--surface); }
 .swatch .name { font-size:10px; font-weight:700; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .swatch .hex { margin-top:2px; font-size:9px; color:var(--fg-dim); font-family:'SF Mono', Menlo, monospace; }
+.swatch .role { margin-top:4px; font-size:9px; line-height:1.35; color:var(--fg-dim); }
 
-.editor-wrap { border-radius:var(--radius); border:1px solid var(--overlay); overflow:hidden; margin-bottom:24px; }
+.editor-wrap { border-radius:var(--radius-lg); border:1px solid var(--overlay); overflow:hidden; margin-bottom:24px; }
 .editor-titlebar { display:flex; align-items:center; padding:8px 12px; background:var(--surface); border-bottom:1px solid var(--overlay); font-size:11px; color:var(--fg-dim); gap:8px; }
 .editor-titlebar .dots { display:flex; gap:5px; }
 .editor-titlebar .dot { width:10px; height:10px; border-radius:50%; }
@@ -104,22 +117,22 @@ main { min-width:0; padding:20px; overflow:auto; }
 
 footer.output { grid-column:1/-1; border-top:1px solid var(--overlay); background:var(--surface); }
 .output-tabs { display:flex; overflow-x:auto; border-bottom:1px solid var(--overlay); }
-.output-tab { min-height:44px; padding:8px 16px; font-size:12px; font-weight:600; color:var(--fg-dim); border:0; background:none; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; }
-.output-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.output-tab { min-height:44px; padding:8px 16px; font-size:12px; font-weight:600; color:var(--fg-dim); border:0; background:none; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:color var(--motion-fast), border-color var(--motion-fast); }
+.output-tab[aria-selected="true"] { color:var(--accent); border-bottom-color:var(--accent); }
 .output-content { position:relative; max-height:220px; overflow:auto; }
 .output-content pre { min-width:max-content; padding:48px 16px 12px; font-family:'SF Mono', Menlo, Consolas, monospace; font-size:11.5px; line-height:1.5; color:var(--fg); white-space:pre; }
 .output-content.wrap pre { min-width:0; white-space:pre-wrap; overflow-wrap:anywhere; }
 .output-actions { position:absolute; top:8px; right:12px; z-index:1; display:flex; gap:6px; }
-.copy-btn, .wrap-btn { min-height:32px; padding:4px 10px; font-size:11px; border-radius:4px; border:1px solid var(--overlay); background:var(--bg); color:var(--fg-dim); cursor:pointer; transition:color .15s ease-out, border-color .15s ease-out, background-color .15s ease-out; }
+.copy-btn, .wrap-btn { min-height:var(--hit); padding:4px 10px; font-size:11px; border-radius:var(--radius-sm); border:1px solid var(--overlay); background:var(--bg); color:var(--fg-dim); cursor:pointer; transition:color var(--motion-fast), border-color var(--motion-fast), background-color var(--motion-fast); }
 .copy-btn:hover, .wrap-btn:hover { border-color:var(--accent); color:var(--fg); }
 .wrap-btn[aria-pressed="true"] { border-color:var(--accent-bg); background:var(--accent-bg); color:var(--accent-fg); }
 
 @media (max-width: 760px) {
+  :root { --hit: 44px; }
   body { min-height:100%; grid-template-columns:1fr; grid-template-rows:auto auto auto auto; }
   header { position:sticky; top:0; z-index:2; padding:10px 12px; flex-wrap:wrap; }
   .header-actions { width:100%; justify-content:space-between; }
   aside.controls { border-right:0; border-bottom:1px solid var(--overlay); padding:12px; overflow:visible; }
-  .preset-btn, .mode-toggle button, .build-btn, .copy-btn, .wrap-btn, .hue-slider { min-height:44px; }
   main { padding:12px; }
   .swatch-row { grid-template-columns:repeat(auto-fill, minmax(min(88px, 100%), 1fr)); }
   .output-content { max-height:38vh; }
@@ -135,9 +148,9 @@ footer.output { grid-column:1/-1; border-top:1px solid var(--overlay); backgroun
   <h1><span>gg</span> theme editor</h1>
   <div class="header-actions">
     <button type="button" class="build-btn" id="build-btn">Build</button>
-    <div class="mode-toggle" aria-label="Theme preview mode">
-      <button type="button" id="mode-dark" class="active" aria-pressed="true">Dark</button>
-      <button type="button" id="mode-light" aria-pressed="false">Light</button>
+    <div class="mode-toggle" role="radiogroup" aria-label="Theme preview mode">
+      <button type="button" id="mode-dark" role="radio" aria-checked="true" tabindex="0">Dark</button>
+      <button type="button" id="mode-light" role="radio" aria-checked="false" tabindex="-1">Light</button>
     </div>
   </div>
 </header>
@@ -187,8 +200,8 @@ footer.output { grid-column:1/-1; border-top:1px solid var(--overlay); backgroun
 </main>
 
 <footer class="output">
-  <div class="output-tabs" id="output-tabs" aria-label="Generated output"></div>
-  <div class="output-content" id="output-content">
+  <div class="output-tabs" id="output-tabs" role="tablist" aria-label="Generated output"></div>
+  <div class="output-content" id="output-content" role="tabpanel" tabindex="0">
     <div class="output-actions">
       <button type="button" class="wrap-btn" id="wrap-output" aria-pressed="false">Wrap</button>
       <button type="button" class="copy-btn" id="copy-output">Copy</button>
@@ -213,10 +226,26 @@ const PALETTE_GROUPS = [
   {name:"Surface", note:"Base layers and terminal anchors.", keys:["BG","Surface","Overlay","Black","White"]},
   {name:"Text", note:"Foregrounds, dim text, and cursor colors.", keys:["FG","FGDim","Cursor","CursorText"]},
   {name:"Interaction", note:"Selection, action, visual, and search states.", keys:["SelectionBG","SelectionFG","Accent","ButtonBG","ButtonFG","VisualBG","SearchBG"]},
-  {name:"Syntax", note:"Shared editor and terminal syntax colors.", keys:["Red","Orange","Yellow","Green","Cyan","Blue","Magenta"]},
+  {name:"Syntax", note:"Shared editor and terminal syntax colors. Each hue carries multiple roles across syntax, ANSI, and target-specific accents — the role line under each swatch is the truth.", keys:["Red","Orange","Yellow","Green","Cyan","Blue","Magenta"]},
   {name:"Bright ANSI", note:"Higher-energy terminal variants.", keys:["BrightBlack","BrightRed","BrightYellow","BrightGreen","BrightCyan","BrightBlue","BrightMagenta","BrightWhite"]},
   {name:"Diagnostics", note:"Diff and debug surfaces.", keys:["DiffAddBG","DiffDeleteBG","DiffChangeBG","DebugFG"]},
 ];
+
+// Per-color role descriptions for the syntax wheel. Color-named tokens
+// carry multiple semantic roles across targets, so the swatch label
+// alone ("Red") doesn't say what the color actually does. Keep this
+// list in sync with DESIGN.md and the template assignments — a
+// mismatch here is a sign that a template is using a color for the
+// wrong role (the way Orange was being used for `modified` files).
+const COLOR_ROLES = {
+  Red:     "Errors, deleted, destructive state",
+  Orange:  "Warnings, parameters, conflicts, search match",
+  Yellow:  "Strings, search highlight, modified files",
+  Green:   "Functions, success, diff added",
+  Cyan:    "Types, links, hints, info",
+  Blue:    "Numbers, link emphasis, debugger",
+  Magenta: "Keywords, operators",
+};
 
 const CODE_LINES = [
   [{className:"tok-comment", text:"// config.go: Application configuration"}],
@@ -257,15 +286,22 @@ let state = {
   wrapOutput:false,
 };
 let debounceTimer = null;
-let paletteRequest = 0;
-let paletteController = null;
+let summaryRequest = 0;
+let summaryController = null;
+let templateRequest = 0;
+let templateController = null;
 
 function init() {
   bindEvents();
   renderPresets();
   renderCodeSample();
-  document.documentElement.style.setProperty('--surface-hue', state.surfaceHue);
+  setSurfaceHueVar(state.surfaceHue);
   fetchPalette();
+}
+
+function setSurfaceHueVar(h) {
+  // 'deg' suffix keeps the value spec-compliant inside oklch(L C var(--surface-hue)).
+  document.documentElement.style.setProperty('--surface-hue', h + 'deg');
 }
 
 function buildQuery() {
@@ -281,8 +317,16 @@ function bindEvents() {
   document.getElementById('build-btn').addEventListener('click', applyTheme);
   document.getElementById('copy-output').addEventListener('click', copyOutput);
   document.getElementById('wrap-output').addEventListener('click', toggleWrapOutput);
-  document.getElementById('mode-dark').addEventListener('click', () => setMode('dark'));
-  document.getElementById('mode-light').addEventListener('click', () => setMode('light'));
+
+  const modeDark = document.getElementById('mode-dark');
+  const modeLight = document.getElementById('mode-light');
+  modeDark.addEventListener('click', () => setMode('dark'));
+  modeLight.addEventListener('click', () => setMode('light'));
+  const modeGroup = [modeDark, modeLight];
+  for (const button of modeGroup) {
+    button.addEventListener('keydown', event => onModeKey(event, button, modeGroup));
+  }
+
   document.getElementById('surface-hue').addEventListener('input', onSliderChange);
   document.getElementById('accent-hue').addEventListener('input', onSliderChange);
   document.getElementById('dark-lightness').addEventListener('input', onSliderChange);
@@ -297,11 +341,49 @@ function bindEvents() {
     if (!button) return;
     copyColor(button.dataset.name, button.dataset.hex);
   });
-  document.getElementById('output-tabs').addEventListener('click', event => {
+  const outputTabs = document.getElementById('output-tabs');
+  outputTabs.addEventListener('click', event => {
     const button = event.target.closest('.output-tab');
     if (!button) return;
     setTab(button.dataset.tab);
   });
+  outputTabs.addEventListener('keydown', onTabsKey);
+}
+
+function onModeKey(event, current, group) {
+  const i = group.indexOf(current);
+  if (i === -1) return;
+  let next = null;
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+    next = group[(i - 1 + group.length) % group.length];
+  } else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+    next = group[(i + 1) % group.length];
+  } else if (event.key === 'Home') {
+    next = group[0];
+  } else if (event.key === 'End') {
+    next = group[group.length - 1];
+  }
+  if (!next) return;
+  event.preventDefault();
+  next.focus();
+  setMode(next.id === 'mode-light' ? 'light' : 'dark');
+}
+
+function onTabsKey(event) {
+  if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+  const tabs = Array.from(document.querySelectorAll('.output-tab'));
+  if (tabs.length === 0) return;
+  const i = tabs.findIndex(t => t.dataset.tab === state.activeTab);
+  if (i === -1) return;
+  let next;
+  if (event.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length];
+  else if (event.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+  else if (event.key === 'Home') next = tabs[0];
+  else if (event.key === 'End') next = tabs[tabs.length - 1];
+  if (!next) return;
+  event.preventDefault();
+  next.focus();
+  setTab(next.dataset.tab);
 }
 
 function renderCodeSample() {
@@ -349,20 +431,22 @@ function applyPreset(surface, accent) {
   document.getElementById('accent-hue').value = accent;
   document.getElementById('surface-hue-val').textContent = surface + '°';
   document.getElementById('accent-hue-val').textContent = accent + '°';
-  document.documentElement.style.setProperty('--surface-hue', state.surfaceHue);
+  setSurfaceHueVar(state.surfaceHue);
   renderPresets();
   fetchPalette();
 }
 
 function setMode(mode) {
+  if (state.mode === mode) return;
   state.mode = mode;
   const dark = document.getElementById('mode-dark');
   const light = document.getElementById('mode-light');
-  dark.classList.toggle('active', mode === 'dark');
-  light.classList.toggle('active', mode === 'light');
-  dark.setAttribute('aria-pressed', mode === 'dark');
-  light.setAttribute('aria-pressed', mode === 'light');
+  dark.setAttribute('aria-checked', mode === 'dark');
+  light.setAttribute('aria-checked', mode === 'light');
+  dark.tabIndex = mode === 'dark' ? 0 : -1;
+  light.tabIndex = mode === 'light' ? 0 : -1;
   if (state.data) renderPalette(state.data);
+  fetchActiveTemplate();
 }
 
 function onSliderChange() {
@@ -374,29 +458,58 @@ function onSliderChange() {
   document.getElementById('accent-hue-val').textContent = state.accentHue + '°';
   document.getElementById('dark-lightness-val').textContent = Math.round(state.darkLightness * 100) + '%';
   document.getElementById('light-lightness-val').textContent = Math.round(state.lightLightness * 100) + '%';
-  document.documentElement.style.setProperty('--surface-hue', state.surfaceHue);
+  setSurfaceHueVar(state.surfaceHue);
   renderPresets();
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(fetchPalette, 80);
 }
 
 function fetchPalette() {
-  const requestId = ++paletteRequest;
-  if (paletteController) paletteController.abort();
-  paletteController = new AbortController();
-  fetch('/api/generate?' + buildQuery(), {signal: paletteController.signal})
+  const requestId = ++summaryRequest;
+  if (summaryController) summaryController.abort();
+  summaryController = new AbortController();
+  fetch('/api/generate?' + buildQuery(), {signal: summaryController.signal})
     .then(response => {
       if (!response.ok) throw new Error('Palette request failed');
       return response.json();
     })
     .then(data => {
-      if (requestId !== paletteRequest) return;
+      if (requestId !== summaryRequest) return;
       state.data = data;
       renderPalette(data);
+      fetchActiveTemplate();
     })
     .catch(error => {
       if (error.name === 'AbortError') return;
       setStatus('Could not update the palette. Try again.', 'error');
+    });
+}
+
+function fetchActiveTemplate() {
+  if (!state.activeTab) return;
+  const requestId = ++templateRequest;
+  if (templateController) templateController.abort();
+  templateController = new AbortController();
+  const params = new URLSearchParams({
+    name: state.activeTab,
+    mode: state.mode,
+    surfaceHue: String(state.surfaceHue),
+    accentHue: String(state.accentHue),
+    darkSurfaceLightness: state.darkLightness.toFixed(2),
+    lightSurfaceLightness: state.lightLightness.toFixed(2),
+  });
+  fetch('/api/template?' + params.toString(), {signal: templateController.signal})
+    .then(response => {
+      if (!response.ok) throw new Error('Template request failed');
+      return response.json();
+    })
+    .then(data => {
+      if (requestId !== templateRequest) return;
+      document.getElementById('output-text').textContent = data.content || '';
+    })
+    .catch(error => {
+      if (error.name === 'AbortError') return;
+      setStatus('Could not load output preview.', 'error');
     });
 }
 
@@ -420,7 +533,7 @@ function renderPalette(data) {
   document.documentElement.style.setProperty('--orange', palette.Orange);
   renderPaletteGroups(palette);
   renderContrasts(modeData.contrasts);
-  renderOutput(modeData.templates);
+  renderTabs(modeData.templateNames || []);
 }
 
 function renderPaletteGroups(colors) {
@@ -447,7 +560,10 @@ function renderSwatch(name, hex) {
   swatch.className = 'swatch';
   swatch.dataset.name = name;
   swatch.dataset.hex = hex;
-  swatch.setAttribute('aria-label', 'Copy ' + name + ' ' + hex);
+  const role = COLOR_ROLES[name];
+  swatch.setAttribute('aria-label', role
+    ? 'Copy ' + name + ' ' + hex + '. Used for: ' + role + '.'
+    : 'Copy ' + name + ' ' + hex);
   const color = document.createElement('div');
   color.className = 'color';
   color.style.background = hex;
@@ -460,6 +576,12 @@ function renderSwatch(name, hex) {
   value.className = 'hex';
   value.textContent = hex;
   info.append(label, value);
+  if (role) {
+    const r = document.createElement('div');
+    r.className = 'role';
+    r.textContent = role;
+    info.append(r);
+  }
   swatch.append(color, info);
   return swatch;
 }
@@ -483,33 +605,40 @@ function renderContrasts(contrasts) {
   setStatus(failures ? failures + ' contrast check' + (failures === 1 ? '' : 's') + ' need attention.' : '', failures ? 'error' : '');
 }
 
-function renderOutput(templates) {
+function renderTabs(names) {
+  if (!Array.isArray(names) || names.length === 0) return;
+  if (!names.includes(state.activeTab)) state.activeTab = names[0];
   const tabs = document.getElementById('output-tabs');
-  const names = Object.keys(templates);
-  if (!templates[state.activeTab]) state.activeTab = names[0];
-  if (tabs.dataset.names !== names.join(',')) {
-    tabs.dataset.names = names.join(',');
+  const namesKey = names.join(',');
+  if (tabs.dataset.names !== namesKey) {
+    tabs.dataset.names = namesKey;
     const buttons = names.map(name => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'output-tab';
       button.dataset.tab = name;
       button.textContent = name;
+      button.setAttribute('role', 'tab');
       return button;
     });
     tabs.replaceChildren(...buttons);
   }
-  document.getElementById('output-text').textContent = templates[state.activeTab] || '';
-  tabs.querySelectorAll('.output-tab').forEach(tab => {
+  applyTabSelectionUI();
+}
+
+function applyTabSelectionUI() {
+  document.querySelectorAll('.output-tab').forEach(tab => {
     const active = tab.dataset.tab === state.activeTab;
-    tab.classList.toggle('active', active);
-    tab.setAttribute('aria-pressed', active);
+    tab.setAttribute('aria-selected', active);
+    tab.tabIndex = active ? 0 : -1;
   });
 }
 
 function setTab(name) {
+  if (state.activeTab === name) return;
   state.activeTab = name;
-  if (state.data) renderOutput(state.data[state.mode].templates);
+  applyTabSelectionUI();
+  fetchActiveTemplate();
 }
 
 function toggleWrapOutput() {
@@ -546,8 +675,14 @@ function copyOutput() {
 
 function setStatus(message, tone) {
   const status = document.getElementById('status-line');
-  status.textContent = message;
-  status.className = 'status-line' + (tone ? ' ' + tone : '');
+  const next = message || '';
+  const nextClass = 'status-line' + (tone ? ' ' + tone : '');
+  if (status.textContent === next && status.className === nextClass) {
+    // No-op: skip the write so aria-live doesn't fire on identical content.
+    return;
+  }
+  status.textContent = next;
+  status.className = nextClass;
 }
 
 function applyTheme() {

@@ -35,12 +35,51 @@ var (
 	lightSurfaceLightnessRE = regexp.MustCompile(`(LightSurfaceLightness:\s*)[\d.]+`)
 )
 
+// targetSpec describes one renderable theme target. The slice
+// preserves UI tab order; the map gives O(1) lookup for
+// /api/template. Dual flags the targets that consume both dark and
+// light palettes in one render (currently only Zed).
+type targetSpec struct {
+	Name string
+	Path string
+	Dual bool
+}
+
+var targetSpecs = []targetSpec{
+	{Name: "ghostty", Path: "templates/ghostty.tmpl"},
+	{Name: "fish", Path: "templates/fish.tmpl"},
+	{Name: "vscode", Path: "templates/vscode/theme.json.tmpl"},
+	{Name: "vscode/package.json", Path: "templates/vscode/package.json.tmpl"},
+	{Name: "neovim", Path: "templates/neovim.lua.tmpl"},
+	{Name: "zed", Path: "templates/zed/theme.json.tmpl", Dual: true},
+	{Name: "typora.css", Path: "templates/typora/theme.css.tmpl"},
+	{Name: "typora/codeblock", Path: "templates/typora/codeblock.css.tmpl"},
+	{Name: "typora/mermaid", Path: "templates/typora/mermaid.css.tmpl"},
+	{Name: "typora/sourcemode", Path: "templates/typora/sourcemode.css.tmpl"},
+}
+
+var targetByName = func() map[string]targetSpec {
+	m := make(map[string]targetSpec, len(targetSpecs))
+	for _, t := range targetSpecs {
+		m[t.Name] = t
+	}
+	return m
+}()
+
+func targetNames() []string {
+	names := make([]string, len(targetSpecs))
+	for i, t := range targetSpecs {
+		names[i] = t.Name
+	}
+	return names
+}
+
 type paletteJSON struct {
-	Name      string            `json:"name"`
-	Config    configJSON        `json:"config"`
-	Colors    map[string]string `json:"colors"`
-	Contrasts []contrastJSON    `json:"contrasts"`
-	Templates map[string]string `json:"templates"`
+	Name          string            `json:"name"`
+	Config        configJSON        `json:"config"`
+	Colors        map[string]string `json:"colors"`
+	Contrasts     []contrastJSON    `json:"contrasts"`
+	TemplateNames []string          `json:"templateNames"`
 }
 
 type configJSON struct {
@@ -74,6 +113,7 @@ func Serve() {
 		staticFiles.ServeHTTP(w, r)
 	})
 	mux.HandleFunc("/api/generate", handleGenerate)
+	mux.HandleFunc("/api/template", handleTemplate)
 	mux.HandleFunc("/api/apply", handleApply)
 
 	addr := "localhost:9090"
@@ -113,6 +153,10 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// handleGenerate returns the palette summary for both modes: colors,
+// contrast checks, and the ordered list of available template names.
+// Template content is fetched separately via /api/template so the
+// hot path (slider drag) doesn't render every target on every move.
 func handleGenerate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -126,19 +170,9 @@ func handleGenerate(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	cfg := configFromQuery(q, defaults)
 
-	dark, err := toPaletteJSON("gg-dark", cfg, colors.Generate(cfg, true))
-	if err != nil {
-		jsonError(w, "render templates: "+err.Error())
-		return
-	}
-	light, err := toPaletteJSON("gg-light", cfg, colors.Generate(cfg, false))
-	if err != nil {
-		jsonError(w, "render templates: "+err.Error())
-		return
-	}
 	resp := map[string]*paletteJSON{
-		"dark":  dark,
-		"light": light,
+		"dark":  toPaletteJSON("gg-dark", cfg, colors.Generate(cfg, true)),
+		"light": toPaletteJSON("gg-light", cfg, colors.Generate(cfg, false)),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -147,7 +181,7 @@ func handleGenerate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func toPaletteJSON(name string, cfg colors.ThemeConfig, p colors.Palette) (*paletteJSON, error) {
+func toPaletteJSON(name string, cfg colors.ThemeConfig, p colors.Palette) *paletteJSON {
 	colorMap := map[string]string{
 		"BG": p.BG, "Surface": p.Surface, "Overlay": p.Overlay,
 		"FG": p.FG, "FGDim": p.FGDim,
@@ -178,30 +212,6 @@ func toPaletteJSON(name string, cfg colors.ThemeConfig, p colors.Palette) (*pale
 		}
 	}
 
-	data := themes.ThemeData{Name: name, Palette: p}
-	templates := make(map[string]string)
-	for key, tmplPath := range map[string]string{
-		"ghostty":             "templates/ghostty.tmpl",
-		"fish":                "templates/fish.tmpl",
-		"vscode":              "templates/vscode/theme.json.tmpl",
-		"vscode/package.json": "templates/vscode/package.json.tmpl",
-		"neovim":              "templates/neovim.lua.tmpl",
-	} {
-		if err := addTemplate(templates, key, tmplPath, data); err != nil {
-			return nil, err
-		}
-	}
-	for key, tmplPath := range map[string]string{
-		"typora.css":        "templates/typora/theme.css.tmpl",
-		"typora/codeblock":  "templates/typora/codeblock.css.tmpl",
-		"typora/mermaid":    "templates/typora/mermaid.css.tmpl",
-		"typora/sourcemode": "templates/typora/sourcemode.css.tmpl",
-	} {
-		if err := addTemplate(templates, key, tmplPath, data); err != nil {
-			return nil, err
-		}
-	}
-
 	return &paletteJSON{
 		Name: name,
 		Config: configJSON{
@@ -210,10 +220,60 @@ func toPaletteJSON(name string, cfg colors.ThemeConfig, p colors.Palette) (*pale
 			DarkSurfaceLightness:  cfg.DarkSurfaceLightness,
 			LightSurfaceLightness: cfg.LightSurfaceLightness,
 		},
-		Colors:    colorMap,
-		Contrasts: contrasts,
-		Templates: templates,
-	}, nil
+		Colors:        colorMap,
+		Contrasts:     contrasts,
+		TemplateNames: targetNames(),
+	}
+}
+
+// handleTemplate renders one target's text for the given mode and
+// config. Called by the client when a tab activates or when the
+// active tab's content needs to refresh after a slider change.
+func handleTemplate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	q := r.URL.Query()
+	name := q.Get("name")
+	spec, ok := targetByName[name]
+	if !ok {
+		jsonErrorStatus(w, http.StatusNotFound, "unknown template: "+name)
+		return
+	}
+
+	dark := q.Get("mode") != "light"
+
+	applyMu.RLock()
+	defaults := colors.DefaultConfig
+	applyMu.RUnlock()
+	cfg := configFromQuery(q, defaults)
+
+	var data any
+	if spec.Dual {
+		data = themes.DualThemeData{
+			Dark:  colors.Generate(cfg, true),
+			Light: colors.Generate(cfg, false),
+		}
+	} else {
+		themeName := "gg-light"
+		if dark {
+			themeName = "gg-dark"
+		}
+		data = themes.ThemeData{Name: themeName, Palette: colors.Generate(cfg, dark)}
+	}
+
+	content, err := themes.RenderTemplateString(spec.Path, data)
+	if err != nil {
+		jsonError(w, "render template: "+err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(map[string]string{"content": content}); err != nil {
+		log.Printf("encode template response: %v", err)
+	}
 }
 
 func configFromQuery(q url.Values, defaults colors.ThemeConfig) colors.ThemeConfig {
@@ -233,15 +293,6 @@ func configFromQuery(q url.Values, defaults colors.ThemeConfig) colors.ThemeConf
 			colors.MaxLightSurfaceLightness,
 		),
 	}
-}
-
-func addTemplate(dst map[string]string, key, tmplPath string, data themes.ThemeData) error {
-	s, err := themes.RenderTemplateString(tmplPath, data)
-	if err != nil {
-		return err
-	}
-	dst[key] = s
-	return nil
 }
 
 func handleApply(w http.ResponseWriter, r *http.Request) {

@@ -1,5 +1,7 @@
 package colors
 
+import "math"
+
 // Palette contains every generated color token.
 type Palette struct {
 	BG, Surface, Overlay     string
@@ -51,10 +53,10 @@ const (
 
 // DefaultConfig is the project's canonical hue and lightness configuration.
 var DefaultConfig = ThemeConfig{
-	SurfaceHue:            150,
-	AccentHue:             150,
-	DarkSurfaceLightness:  0.30,
-	LightSurfaceLightness: 0.88,
+	SurfaceHue:            135,
+	AccentHue:             16,
+	DarkSurfaceLightness:  0.28,
+	LightSurfaceLightness: 0.91,
 }
 
 // Dark and Light are pre-built palettes from DefaultConfig.
@@ -73,7 +75,8 @@ func SetConfig(cfg ThemeConfig) {
 }
 
 // Normalized returns cfg with zero-valued lightness fields filled from
-// DefaultConfig so partial configs never produce degenerate palettes.
+// DefaultConfig and AccentHue nudged out of the forbidden zones so partial
+// or colliding inputs never produce a degenerate palette.
 func (cfg ThemeConfig) Normalized() ThemeConfig {
 	if cfg.DarkSurfaceLightness == 0 {
 		cfg.DarkSurfaceLightness = DefaultConfig.DarkSurfaceLightness
@@ -81,5 +84,64 @@ func (cfg ThemeConfig) Normalized() ThemeConfig {
 	if cfg.LightSurfaceLightness == 0 {
 		cfg.LightSurfaceLightness = DefaultConfig.LightSurfaceLightness
 	}
+	cfg.SurfaceHue = wrapHue(cfg.SurfaceHue)
+	cfg.AccentHue = nudgeAccentHue(wrapHue(cfg.AccentHue), cfg.SurfaceHue)
 	return cfg
+}
+
+// minAccentSeparation is the minimum hue distance (deg) between Accent and
+// SurfaceHue / Red / Green / Magenta. Below this, the accent dissolves into
+// the field or aliases as error/success/keyword state.
+const minAccentSeparation = 25.0
+
+// accentForbiddenHues are the syntax hues the accent must stay clear of.
+// Red, Green, Magenta carry strong semantic signal in generated targets and
+// must remain distinguishable from the one accent token.
+var accentForbiddenHues = [...]float64{20, 150, 325}
+
+func wrapHue(h float64) float64 {
+	h = math.Mod(h, 360)
+	if h < 0 {
+		h += 360
+	}
+	return h
+}
+
+func hueDistance(a, b float64) float64 {
+	d := math.Abs(wrapHue(a) - wrapHue(b))
+	if d > 180 {
+		d = 360 - d
+	}
+	return d
+}
+
+func accentHueValid(accent, surface float64) bool {
+	if hueDistance(accent, surface) < minAccentSeparation {
+		return false
+	}
+	for _, f := range accentForbiddenHues {
+		if hueDistance(accent, f) < minAccentSeparation {
+			return false
+		}
+	}
+	return true
+}
+
+// nudgeAccentHue returns accent if it is already a valid distance from
+// SurfaceHue and the forbidden syntax hues; otherwise it walks outward in 1°
+// increments and returns the closest valid hue. Forbidden zones never fill
+// 360°, so the loop always terminates.
+func nudgeAccentHue(accent, surface float64) float64 {
+	if accentHueValid(accent, surface) {
+		return accent
+	}
+	for delta := 1.0; delta <= 180.0; delta++ {
+		if c := wrapHue(accent + delta); accentHueValid(c, surface) {
+			return c
+		}
+		if c := wrapHue(accent - delta); accentHueValid(c, surface) {
+			return c
+		}
+	}
+	return accent
 }

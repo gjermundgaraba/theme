@@ -41,6 +41,7 @@ func installLinks(home string) [][2]string {
 		{"build/fish/gg-light.theme", filepath.Join(home, ".config", "fish", "themes", "gg-light.theme")},
 		{"build/vscode/gg-theme", filepath.Join(home, ".vscode", "extensions", "gg-theme")},
 		{"build/vscode/gg-theme", filepath.Join(home, ".cursor", "extensions", "gg-theme")},
+		{"build/zed/gg-theme.json", filepath.Join(home, ".config", "zed", "themes", "gg-theme.json")},
 		{"build/typora/gg-dark.css", filepath.Join(home, "Library", "Application Support", "abnerworks.Typora", "themes", "gg-dark.css")},
 		{"build/typora/gg-dark", filepath.Join(home, "Library", "Application Support", "abnerworks.Typora", "themes", "gg-dark")},
 		{"build/typora/gg-light.css", filepath.Join(home, "Library", "Application Support", "abnerworks.Typora", "themes", "gg-light.css")},

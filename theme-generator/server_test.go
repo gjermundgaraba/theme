@@ -145,9 +145,20 @@ func TestHandleGenerateReturnsNamedPalettes(t *testing.T) {
 	if got["dark"].Name != "gg-dark" || got["light"].Name != "gg-light" {
 		t.Fatalf("unexpected names: dark=%q light=%q", got["dark"].Name, got["light"].Name)
 	}
-	if got["dark"].Templates["vscode/package.json"] == "" {
-		t.Fatal("missing vscode package preview")
+	for _, name := range []string{"vscode/package.json", "zed"} {
+		if !sliceContains(got["dark"].TemplateNames, name) {
+			t.Fatalf("dark template names missing %q: %v", name, got["dark"].TemplateNames)
+		}
 	}
+}
+
+func sliceContains(haystack []string, needle string) bool {
+	for _, s := range haystack {
+		if s == needle {
+			return true
+		}
+	}
+	return false
 }
 
 func TestRewritePaletteGoRejectsMissingFields(t *testing.T) {
@@ -281,13 +292,13 @@ func TestHandleApplyRollsBackWhenBuildFails(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(palettePath), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	original := "package colors\n\nvar DefaultConfig = ThemeConfig{\n\tSurfaceHue:            157,\n\tAccentHue:             360,\n\tDarkSurfaceLightness:  0.27,\n\tLightSurfaceLightness: 0.95,\n}\n"
+	original := "package colors\n\nvar DefaultConfig = ThemeConfig{\n\tSurfaceHue:            157,\n\tAccentHue:             270,\n\tDarkSurfaceLightness:  0.27,\n\tLightSurfaceLightness: 0.95,\n}\n"
 	if err := os.WriteFile(palettePath, []byte(original), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	colors.SetConfig(colors.ThemeConfig{
 		SurfaceHue:            157,
-		AccentHue:             360,
+		AccentHue:             270,
 		DarkSurfaceLightness:  0.27,
 		LightSurfaceLightness: 0.95,
 	})
@@ -307,7 +318,7 @@ func TestHandleApplyRollsBackWhenBuildFails(t *testing.T) {
 	if rec.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 500", rec.Code)
 	}
-	if colors.DefaultConfig.SurfaceHue != 157 || colors.DefaultConfig.AccentHue != 360 {
+	if colors.DefaultConfig.SurfaceHue != 157 || colors.DefaultConfig.AccentHue != 270 {
 		t.Fatalf("config was not rolled back: %+v", colors.DefaultConfig)
 	}
 	content, err := os.ReadFile(palettePath)
@@ -341,10 +352,7 @@ func TestPaletteJSONExposesEveryGeneratedColor(t *testing.T) {
 		DarkSurfaceLightness:  0.27,
 		LightSurfaceLightness: 0.95,
 	}
-	got, err := toPaletteJSON("gg-dark", cfg, colors.Generate(cfg, true))
-	if err != nil {
-		t.Fatal(err)
-	}
+	got := toPaletteJSON("gg-dark", cfg, colors.Generate(cfg, true))
 	wantKeys := []string{
 		"BG", "Surface", "Overlay", "FG", "FGDim",
 		"Cursor", "CursorText", "SelectionBG", "SelectionFG",
@@ -374,23 +382,57 @@ func TestPaletteJSONExposesEveryGeneratedColor(t *testing.T) {
 
 func TestPaletteJSONIncludesTyporaForDarkAndLight(t *testing.T) {
 	cfg := colors.ThemeConfig{SurfaceHue: 157, AccentHue: 360}
-	dark, err := toPaletteJSON("gg-dark", cfg, colors.Generate(cfg, true))
-	if err != nil {
-		t.Fatal(err)
-	}
+	dark := toPaletteJSON("gg-dark", cfg, colors.Generate(cfg, true))
 	for _, key := range []string{"typora.css", "typora/codeblock", "typora/mermaid", "typora/sourcemode"} {
-		if dark.Templates[key] == "" {
-			t.Fatalf("dark templates missing %q", key)
+		if !sliceContains(dark.TemplateNames, key) {
+			t.Fatalf("dark template names missing %q: %v", key, dark.TemplateNames)
 		}
 	}
 
-	light, err := toPaletteJSON("gg-light", cfg, colors.Generate(cfg, false))
-	if err != nil {
+	light := toPaletteJSON("gg-light", cfg, colors.Generate(cfg, false))
+	for _, key := range []string{"typora.css", "typora/codeblock", "typora/mermaid", "typora/sourcemode"} {
+		if !sliceContains(light.TemplateNames, key) {
+			t.Fatalf("light template names missing %q: %v", key, light.TemplateNames)
+		}
+	}
+}
+
+func TestHandleTemplateRendersNamedTarget(t *testing.T) {
+	req := httptest.NewRequest("GET", "/api/template?name=ghostty&mode=dark&surfaceHue=210&accentHue=45", nil)
+	rec := httptest.NewRecorder()
+
+	handleTemplate(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", rec.Code, rec.Body.String())
+	}
+	var got map[string]string
+	if err := json.Unmarshal(rec.Body.Bytes(), &got); err != nil {
 		t.Fatal(err)
 	}
-	for _, key := range []string{"typora.css", "typora/codeblock", "typora/mermaid", "typora/sourcemode"} {
-		if light.Templates[key] == "" {
-			t.Fatalf("light templates missing %q", key)
-		}
+	if got["content"] == "" {
+		t.Fatal("template content is empty")
+	}
+}
+
+func TestHandleTemplateRejectsUnknownName(t *testing.T) {
+	req := httptest.NewRequest("GET", "/api/template?name=bogus", nil)
+	rec := httptest.NewRecorder()
+
+	handleTemplate(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("status = %d, want 404", rec.Code)
+	}
+}
+
+func TestHandleTemplateRequiresGet(t *testing.T) {
+	req := httptest.NewRequest("POST", "/api/template?name=ghostty", nil)
+	rec := httptest.NewRecorder()
+
+	handleTemplate(rec, req)
+
+	if rec.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusMethodNotAllowed)
 	}
 }
